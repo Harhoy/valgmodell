@@ -1,7 +1,7 @@
 
 from mandatfordeling import fordeling
 
-class ValgSystem:
+class ValgSystemNorge:
 
     def __init__(self, fylker, partier, stemmer, mandater, divisor = 1.4):
 
