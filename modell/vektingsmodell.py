@@ -9,7 +9,7 @@ import datetime
     Weighting model class
     #-----------------------
 
-    Implements a standard weighting model based on Jackman (2005): Pooling the Polls Over an Election Campaign. Australian Journal of Political Science, Vol. 40, No. 4, December, pp. 499–517
+
 
     Added weighting by dates
 
@@ -32,32 +32,33 @@ class VektingsmodellStandard:
         #Cursor
         self._cursor = self._conn.cursor()
         #Connecting party name and number
-        self._partiNavnNummer = {'AP':0, 'H':1, 'Frp':2, 'SV':3, 'Sp':4, 'KrF':5, 'V':6, 'MDG':7, 'R':8, 'A':9}
-
+        self._partiNavnNummer =  {'AP':0, 'Frp':1, 'H':2, 'Krf':3, 'MDG':4, 'R':5, 'Sp':6, 'SV':7, 'V':8, 'A':9}
+        #Date A in weighting model
         self._dateA = dateA
+        #Date B in weighting model
         self._dateB = dateB
-
+        #Method to weight
         self._method = method
-
+        #Geographical area
         self._omraade = omraade
 
         #Extract raw data from database
     def getData(self):
 
-        query = "SELECT AP, H, Frp, SV, Sp, KrF, V, MDG, R, A, Utvalgsstorrelse, Dato FROM Malinger WHERE Omraade == " +  "'" + self._omraade +  "'"
+        query = "SELECT AP, Frp, H, Krf, MDG, R, Sp, SV, V, A, Utvalgsstorrelse, Dato FROM Malinger WHERE Omraade == " +  "'" + self._omraade +  "'"
 
         self._results = []
         for row in self._conn.execute(query):
             temp = {}
             temp['AP'] = row[0]
-            temp['H'] = row[1]
-            temp['Frp'] = row[2]
-            temp['SV'] = row[3]
-            temp['Sp'] = row[4]
-            temp['KrF'] = row[5]
-            temp['V'] = row[6]
-            temp['MDG'] = row[7]
-            temp['R'] = row[8]
+            temp['Frp'] = row[1]
+            temp['H'] = row[2]
+            temp['Krf'] = row[3]
+            temp['MDG'] = row[4]
+            temp['R'] = row[5]
+            temp['Sp'] = row[6]
+            temp['SV'] = row[7]
+            temp['V'] = row[8]
             temp['A'] = row[9]
             temp['N'] = row[10]
             temp['Dato'] = row[11]
@@ -146,5 +147,5 @@ if __name__ == "__main__":
 
     vm = VektingsmodellStandard("data/poll/db/Valg_db.db")
     r = vm.run()
-    print(r[0])
-    print(r[1])
+    #print(r[0])
+    #print(r[1])
