@@ -8,7 +8,7 @@ from scipy.stats import norm
 
 class Valgsimulering:
 
-    def __init__(self, geoShareFiles, seatsFile, pollDatabase, uncertaintyFile, iterations = 1, mode = "deterministic"):
+    def __init__(self, geoShareFiles, seatsFile, pollDatabase, uncertaintyFile, iterations = 1):
 
         #Files with distribution of votes across constituencies
         self._geoShareFiles = geoShareFiles
@@ -20,10 +20,7 @@ class Valgsimulering:
         self._uncertaintyFile = uncertaintyFile
         #Numbfer of iterations
         self._iterations = iterations
-        #Simulation mode
-        self._mode = mode
-
-
+        #Read data and populate data structures
         self.setup()
 
 
@@ -50,14 +47,14 @@ class Valgsimulering:
 
 
     def run(self):
-
         for iter in range(self._iterations):
-
             #Calclate vote shares
             self.calcVotes()
-            #Calculate resutls
+            #New system with poll numbers
             vs = ValgSystemNorge(self._sharePartyConstituency, self._seats)
+            #Calculate direktemandater
             vs.calcDistriktsmandater()
+            #Calculate utjevningsmandater
             vs.calcUtjevningsmandater()
 
 
@@ -70,7 +67,7 @@ class Valgsimulering:
         geoshareMatrix = self._geoShares[geoShare]
 
         #Just poll values
-        if self._mode == "deterministic":
+        if self._iterations == 1:
             for party in range(self._parties):
                 self._voteSharesNational[party] = self._pollData[0][party]
 
@@ -90,10 +87,6 @@ class Valgsimulering:
             for constituency in range(self._constituencies):
                 self._sharePartyConstituency[constituency][party] = geoshareMatrix[constituency][party] * self._voteSharesNational[party]
 
-        #print(self._sharePartyConstituency)
-
-        #print(geoshareMatrix)
-
 if __name__ == "__main__":
 
     geoShareFile = ["data/fylkesfordeling2013.csv"]
@@ -102,5 +95,4 @@ if __name__ == "__main__":
     uncertaintyFile = ""
 
     v = Valgsimulering(geoShareFile, seatsFile, pollDatabase, uncertaintyFile)
-    #v.calcVotes()
     v.run()

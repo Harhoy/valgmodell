@@ -1,6 +1,7 @@
 
 from mandatfordeling import fordeling
 import numpy as np
+from copy import deepcopy
 
 class ValgSystemNorge:
 
@@ -8,6 +9,9 @@ class ValgSystemNorge:
 
         #Array sortert etter rekkefolgen i partier med antall stemmer per parti
         self._stemmer = stemmer
+        self._stemmerCopy = deepcopy(stemmer)
+
+
 
         #Liste med fylker og navn
         self._fylker = len(self._stemmer)
@@ -95,67 +99,36 @@ class ValgSystemNorge:
         #restkvotient matrix
         for fylke in range(self._fylker):
             for party in range(self._partier):
-                self._restKvotientMatrise[fylke][party] =    (self._stemmer[fylke][parti] / (2 * float(mandaterTildeltNational(fylke, parti)) + 1)) / (votesFylke(fylke) / mandater(fylke))
+                self._restKvotientMatrise[fylke][party] = (self._stemmerCopy[fylke][party] / (2 * float(self._mandaterTildelt[fylke][party]) + 1)) / (self._stemmerCopy.sum(axis=1)[fylke] / self._mandater[fylke])
 
-
-        print("U",self._utjevningsmandater)
-
-        '''
-
-
-
-        'BEREGNER FORDELING TIL FYLKE
-
-        'samlet antall stemmer i fylket totalt'
-
-        'https://www.valg.no/om-valg/valgene-i-norge/stortingsvalg/fordeling-av-utjevningsmandater/
-        'restkvotient
-        For fylke = 1 To 19
-            For parti = 1 To 9
-                restkvotMatrise(fylke, parti) = (votesRegional(fylke, parti) / (2 * CDbl(mandaterTildeltNational(fylke, parti)) + 1)) / (votesFylke(fylke) / mandater(fylke))
-            Next parti
-        Next fylke
-
-
-        'utjevningsmandater
+        #allocating to each county
         tildelteUtjevningsmandater = 0
+        uMandater = [1] * self._fylker
+        self._utjevningsmandaterTildeltFylkesmatrise = np.zeros((self._fylker, self._partier))
 
-        For fylke = 1 To 19
-            uMandanter(fylke) = 1
-        Next fylke
+        while tildelteUtjevningsmandater < self._fylker:
 
-        Do While tildelteUtjevningsmandater < 19
-
+            #finding the largest restkvotient
             minVal = -1
             minParti = 0
             minFylke = 0
-
-            'treigt....
-            For fylke = 1 To 19
-                For parti = 1 To 9
-                    If restkvotMatrise(fylke, parti) > minVal And uMandanter(fylke) > 0 And utjevningsmandater(parti) > 0 Then
-                        minVal = restkvotMatrise(fylke, parti)
-                        minParti = parti
+            for fylke in range(self._fylker):
+                for party in range(self._partier):
+                    if self._restKvotientMatrise[fylke][party] > minVal and uMandater[fylke] > 0 and self._utjevningsmandater[party] > 0:
+                        minVal = self._restKvotientMatrise[fylke][party]
+                        minParti = party
                         minFylke = fylke
-                    End If
-                Next parti
-            Next fylke
 
-            'Ett mandat, per fylke
-            utjevningsMandaterTildeltNational(minFylke, minParti) = 1
-
-            'Mandater er fordelt
-            uMandanter(minFylke) = 0
-
-            'Ett mindre mandat
-            utjevningsmandater(minParti) = utjevningsmandater(minParti) - 1
-
-            'Skal se bort fra denne kvotienten
-            restkvotMatrise(minFylke, minParti) = -1
-
-            'Samlet sett ett faerre utjevningsmandat totalt
+            #One seat per county
+            self._utjevningsmandaterTildeltFylkesmatrise[minFylke][minParti] = 1
+            #No more seats in this county
+            uMandater[minFylke] = 0
+            #One fewer seats for given party
+            self._utjevningsmandater[minParti] = self._utjevningsmandater[minParti] - 1
+            #Disregard this entry in future min value searches
+            self._restKvotientMatrise[fylke][party] = -1
+            #One less seat on total to allocate
             tildelteUtjevningsmandater = tildelteUtjevningsmandater + 1
-        '''
 
 
     def getDistriktsmandater(self):
