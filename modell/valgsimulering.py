@@ -5,6 +5,7 @@ from random import random
 from vektingsmodell import VektingsmodellStandard
 from valgsystem import ValgSystemNorge
 from scipy.stats import norm
+from tqdm import tqdm
 
 class Valgsimulering:
 
@@ -22,6 +23,7 @@ class Valgsimulering:
         self._iterations = iterations
         #Read data and populate data structures
         self.setup()
+
 
 
     def setup(self):
@@ -45,9 +47,13 @@ class Valgsimulering:
         self._constituencies = len(self._geoShares[0])
 
 
-
+    #Running the simulation
     def run(self):
-        for iter in range(self._iterations):
+
+        #Iterations, (direct, utjevning, total), counties, parties
+        self._resultMatrix = np.zeros((self._iterations, 3, len(self._geoShares[0]), self._parties))
+
+        for iter in tqdm(range(self._iterations)):
             #Calclate vote shares
             self.calcVotes()
             #New system with poll numbers
@@ -56,6 +62,13 @@ class Valgsimulering:
             vs.calcDistriktsmandater()
             #Calculate utjevningsmandater
             vs.calcUtjevningsmandater()
+
+            #Distriktsmandater
+            self._resultMatrix[iter][0] = vs.getDistriktsmandater()
+            #utjevningsmandater
+            self._resultMatrix[iter][1] = vs.getUtjevningsmandater()
+            #Sum mandater
+            self._resultMatrix[iter][2] = self._resultMatrix[iter][0] + self._resultMatrix[iter][1]
 
 
     def calcVotes(self, geoShare = 0):
@@ -87,6 +100,7 @@ class Valgsimulering:
             for constituency in range(self._constituencies):
                 self._sharePartyConstituency[constituency][party] = geoshareMatrix[constituency][party] * self._voteSharesNational[party]
 
+
 if __name__ == "__main__":
 
     geoShareFile = ["data/fylkesfordeling2013.csv"]
@@ -94,5 +108,5 @@ if __name__ == "__main__":
     pollDatabase = "data/poll/db/Valg_db.db"
     uncertaintyFile = ""
 
-    v = Valgsimulering(geoShareFile, seatsFile, pollDatabase, uncertaintyFile)
+    v = Valgsimulering(geoShareFile, seatsFile, pollDatabase, uncertaintyFile, 100)
     v.run()

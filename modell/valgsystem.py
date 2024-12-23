@@ -135,4 +135,4 @@ class ValgSystemNorge:
         return self._mandaterTildelt
 
     def getUtjevningsmandater(self):
-        return self._utjevningsmandater
+        return self._utjevningsmandaterTildeltFylkesmatrise

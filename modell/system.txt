@@ -27,6 +27,51 @@ valgsimulering:
     kjøring av simuleringsmodell for valg
   håndterer resultater i etterkant -> skriver resultater til databasen
 
+datamodell:
+
+  simulering:
+
+    - dato
+    - id
+    - iterasjoner
+
+  kandidater:
+
+    - id
+    - navn
+    - parti
+    - fylke
+
+  resultater_parti:
+    - id
+    - simuleringsid
+    - parti
+    - fylke
+    - mandattall & prosent
+    - antall / prosent
+
+  resultater_kandidat:
+    - id
+    - simuleringsid
+    - kandidat_id
+    - sannsynlighet (total)
+    - sannsynlighet (direkte)
+    - sannsynlighet (utjevning)
+
+  resultat_koalisjon:
+    - id
+    - simuleringsid
+    - koalsjonsid
+    - parti ID (liste)
+    - sannsynlighet (storre enn)
+    - sannsynlighet (storre mindre enn)
+
+    koalisjoner:
+
+      - id
+      - partier
+      - antall_storre_enn
+      - antall_mindre_enn
 
 flask:
   webapp som kommuniserer med frontend.
