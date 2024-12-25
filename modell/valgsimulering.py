@@ -6,10 +6,11 @@ from vektingsmodell import VektingsmodellStandard
 from valgsystem import ValgSystemNorge
 from scipy.stats import norm
 from tqdm import tqdm
+import datetime
 
 class Valgsimulering:
 
-    def __init__(self, geoShareFiles, seatsFile, pollDatabase, uncertaintyFile, iterations = 1):
+    def __init__(self, geoShareFiles, seatsFile, pollDatabase, uncertaintyFile, dato, iterations = 1):
 
         #Files with distribution of votes across constituencies
         self._geoShareFiles = geoShareFiles
@@ -21,6 +22,8 @@ class Valgsimulering:
         self._uncertaintyFile = uncertaintyFile
         #Numbfer of iterations
         self._iterations = iterations
+        #dato
+        self._dato = dato
         #Read data and populate data structures
         self.setup()
 
@@ -29,7 +32,7 @@ class Valgsimulering:
     def setup(self):
 
         # --- Polling data --- #
-        self._vektingsmodell = VektingsmodellStandard(self._pollDatabase)
+        self._vektingsmodell = VektingsmodellStandard(self._pollDatabase, self._dato)
         self._pollData = self._vektingsmodell.run()
 
         # --- Seats data --- #
@@ -70,6 +73,7 @@ class Valgsimulering:
             #Sum mandater
             self._resultMatrix[iter][2] = self._resultMatrix[iter][0] + self._resultMatrix[iter][1]
 
+        return self._resultMatrix
 
     def calcVotes(self, geoShare = 0):
 
@@ -100,6 +104,8 @@ class Valgsimulering:
             for constituency in range(self._constituencies):
                 self._sharePartyConstituency[constituency][party] = geoshareMatrix[constituency][party] * self._voteSharesNational[party]
 
+    def returnResults(self):
+        return self._resultMatrix
 
 if __name__ == "__main__":
 
@@ -107,6 +113,7 @@ if __name__ == "__main__":
     seatsFile = "data/mandater24.csv"
     pollDatabase = "data/poll/db/Valg_db.db"
     uncertaintyFile = ""
+    dato = datetime.datetime.now()
 
-    v = Valgsimulering(geoShareFile, seatsFile, pollDatabase, uncertaintyFile, 100)
+    v = Valgsimulering(geoShareFile, seatsFile, pollDatabase, uncertaintyFile, dato, 100)
     v.run()

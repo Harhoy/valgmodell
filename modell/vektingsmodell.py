@@ -23,7 +23,7 @@ import datetime
 
 class VektingsmodellStandard:
 
-    def __init__(self, database, dateA = 15.0, dateB = 30.0, method = "Standard", omraade = "Hele landet"):
+    def __init__(self, database, dateNow, dateA = 15.0, dateB = 30.0, method = "Standard", omraade = "Hele landet"):
 
         #Database with downloaded data on polls
         self._database = database
@@ -41,6 +41,8 @@ class VektingsmodellStandard:
         self._method = method
         #Geographical area
         self._omraade = omraade
+        #Date to calculate from
+        self._dateNow = dateNow
 
         #Extract raw data from database
     def getData(self):
@@ -83,10 +85,10 @@ class VektingsmodellStandard:
             self._observations[i] = self._results[i]['N']
 
             dato = self._results[i]['Dato'].replace(" - ", "/").split("/")
-            #Start of poll
-            dato1 = datetime.datetime(2024,int(dato[1]), int(dato[0]))
+            #Start of poll (Y M D)
+            dato1 = datetime.datetime(2024, int(dato[1]), int(dato[0]))
             #End of poll
-            dato2 = datetime.datetime(2024,int(dato[3]), int(dato[2]))
+            dato2 = datetime.datetime(2024, int(dato[3]), int(dato[2]))
 
             #Date distance weight
             self._dates[i] = self.dateWeight(dato1)
@@ -98,7 +100,7 @@ class VektingsmodellStandard:
 
         #Calculates the weight given to each observation based on the date
     def dateWeight(self, date):
-        now = datetime.datetime.now()
+        now = self._dateNow
         diff = float((now - date).days)
         if diff < self._dateB:
             if diff < self._dateA:
@@ -145,7 +147,7 @@ class VektingsmodellStandard:
 
 if __name__ == "__main__":
 
-    vm = VektingsmodellStandard("data/poll/db/Valg_db.db")
+    vm = VektingsmodellStandard("data/poll/db/Valg_db.db",datetime.datetime.now())
     r = vm.run()
     #print(r[0])
     #print(r[1])

@@ -29,7 +29,7 @@ def getMaaling(id):
 
         a = parsed_html.find_all("td", string="Valg")[0]
         valgtype = a.find_next_sibling("td").string
-        
+
         a = parsed_html.find_all("td", string="Område")[0]
         omraade = a.find_next_sibling("td").string
 
@@ -73,8 +73,6 @@ def insertMaaling(maaling,  conn):
                 maaling['institutt'],
                 maaling['antall spurte'],
                 maaling['dato'])
-
-
 
         cursor.execute(sql, data)
         conn.commit()
