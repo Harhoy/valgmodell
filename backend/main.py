@@ -19,15 +19,30 @@ db = SQLAlchemy(app) #ny database og sender inn appen her
 def index():
     return render_template("index.html")
 
-
-@app.route("/getDistricts")
-def get_districts():
-    QUERY = text("SELECT ID Name FROM Districts")
+#----------------------------------------------
+#Getting district names and numbers
+#----------------------------------------------
+@app.route("/getParties")
+def get_parties():
+    QUERY = text("SELECT ID, Name, Shortname FROM Parties ORDER BY ID")
     RETURN_VAL = {}
     result = db.engine.execute(QUERY)
     for row in result:
         RETURN_VAL[row[0]] = row[1]
     return json.dumps(RETURN_VAL)
+
+#----------------------------------------------
+#Getting party names and numbers
+#----------------------------------------------
+@app.route("/getDistricts")
+def get_districts():
+    QUERY = text("SELECT ID, Name FROM Districts ORDER BY ID")
+    RETURN_VAL = {}
+    result = db.engine.execute(QUERY)
+    for row in result:
+        RETURN_VAL[row[0]] = row[1]
+    return json.dumps(RETURN_VAL)
+
 
 #----------------------------------------------
 #Getting counts for each county for newest
@@ -45,14 +60,11 @@ def resultater_part_mandater():
         QUERY = text("SELECT Mandater_distrikt, Mandater_utjevning, Mandater_total, Parti FROM Resultater_parti WHERE SimuleringsID == " +  "'" + str(CURRENT_SIM) +  "'" + " AND " + " Fylke == " +  "'" + str(DISTRICT) +  "'"  + " ORDER BY Parti")
 
         result = db.engine.execute(QUERY)
-
         for row in result:
-
             distrikt = row[0]
             utjevning = row[1]
             total = row[2]
             parti = row[3]
-
             RETURN_VAL[parti] = {'distrikt': distrikt, 'utjevning':utjevning, 'total': total}
 
         return json.dumps(RETURN_VAL)
