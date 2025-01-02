@@ -44,6 +44,6 @@ for dato in daterange(start_date, end_date):
     dato = datetime.combine(dato, datetime.min.time())
 
     print("Kjorer modell for", dato)
-    simuleringsmodell = Valgsimulering(geoShareFile, seatsFile, pollDatabase, uncertaintyFile, dato, 100)
+    simuleringsmodell = Valgsimulering(geoShareFile, seatsFile, pollDatabase, uncertaintyFile, dato, 1)
     resultshandler = ResultHandler(resultsDatabase, simuleringsmodell.run(), dato)
     resultshandler.run()

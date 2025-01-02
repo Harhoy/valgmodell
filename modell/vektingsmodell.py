@@ -23,7 +23,7 @@ import datetime
 
 class VektingsmodellStandard:
 
-    def __init__(self, database, dateNow, dateA = 15.0, dateB = 30.0, method = "Standard", omraade = "Hele landet"):
+    def __init__(self, database, dateNow, dateA = 30.0, dateB = 45.0, method = "Standard", omraade = "Hele landet"):
 
         #Database with downloaded data on polls
         self._database = database
@@ -95,13 +95,17 @@ class VektingsmodellStandard:
 
         #convert matrix to fractions
 
-        self._shareMarix = self._shareMarix / 100.0
+        self._shareMarix = self._shareMarix / 100.0 
 
 
         #Calculates the weight given to each observation based on the date
     def dateWeight(self, date):
         now = self._dateNow
         diff = float((now - date).days)
+
+        if diff < 0:
+            return 0
+
         if diff < self._dateB:
             if diff < self._dateA:
                 return 1

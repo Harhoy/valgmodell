@@ -15,6 +15,10 @@ app.config['SQLALCHEMY_DATABASE_URI'] = r"sqlite:///" + "/Users/bruker/Documents
 #Databse
 db = SQLAlchemy(app) #ny database og sender inn appen her
 
+@app.route("/valgdistrikt")
+def valgdistrikt():
+    return render_template("valgdistrikt.html")
+
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -65,9 +69,39 @@ def resultater_part_mandater():
             utjevning = row[1]
             total = row[2]
             parti = row[3]
-            RETURN_VAL[parti] = {'distrikt': distrikt, 'utjevning':utjevning, 'total': total}
+            RETURN_VAL[parti] = {'distrikt': distrikt, 'utjevning': utjevning, 'total': total}
 
         return json.dumps(RETURN_VAL)
+
+@app.route("/resultater_part_mandater_time_series", methods = ['POST'])
+def resultater_part_mandater_time_series():
+
+    if request.method == "POST":
+
+        DISTRICT = request.json.get("district")
+        #DISTRICT = request.args.get("district", default = 1, type = int)
+
+        SIM_QUERY = text("SELECT ID, Dato from Simulering ORDER BY ID")
+        result_simuleringer = db.engine.execute(SIM_QUERY)
+        RETURN_VAL = {}
+
+        for rowA in result_simuleringer:
+
+            CURRENT_SIM = rowA[0]
+            QUERY = text("SELECT Mandater_distrikt, Mandater_utjevning, Mandater_total, Parti FROM Resultater_parti WHERE SimuleringsID == " +  "'" + str(CURRENT_SIM) +  "'" + " AND " + " Fylke == " +  "'" + str(DISTRICT) +  "'"  + " ORDER BY Parti")
+
+            result = db.engine.execute(QUERY)
+            RETURN_VAL[rowA[1]] = {}
+            for rowB in result:
+                distrikt = rowB[0]
+                utjevning = rowB[1]
+                total = rowB[2]
+                parti = rowB[3]
+                RETURN_VAL[rowA[1]][parti] = {'distrikt': distrikt, 'utjevning': utjevning, 'total': total}
+
+
+
+    return json.dumps(RETURN_VAL)
 
 #----------------------------------------------
 #Getting count for total for newest

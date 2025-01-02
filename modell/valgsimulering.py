@@ -35,6 +35,8 @@ class Valgsimulering:
         self._vektingsmodell = VektingsmodellStandard(self._pollDatabase, self._dato)
         self._pollData = self._vektingsmodell.run()
 
+        print(self._pollData[0][0])
+
         # --- Seats data --- #
         self._seats = pd.read_csv(self._seatsFile, sep=';', header=None).values
 
@@ -73,6 +75,9 @@ class Valgsimulering:
             #Sum mandater
             self._resultMatrix[iter][2] = self._resultMatrix[iter][0] + self._resultMatrix[iter][1]
 
+            #print(self._resultMatrix[0][0][0])
+            #print(self._pollData[0])
+
         return self._resultMatrix
 
     def calcVotes(self, geoShare = 0):
@@ -82,6 +87,7 @@ class Valgsimulering:
 
         #distribution of votes
         geoshareMatrix = self._geoShares[geoShare]
+
 
         #Just poll values
         if self._iterations == 1:
@@ -115,5 +121,5 @@ if __name__ == "__main__":
     uncertaintyFile = ""
     dato = datetime.datetime.now()
 
-    v = Valgsimulering(geoShareFile, seatsFile, pollDatabase, uncertaintyFile, dato, 100)
+    v = Valgsimulering(geoShareFile, seatsFile, pollDatabase, uncertaintyFile, dato, 2000)
     v.run()

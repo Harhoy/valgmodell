@@ -54,6 +54,7 @@ window.addEventListener("load", () => {
 
           chooseDistrict.innerText = this.innerText;
           updateSinglePartyCounts(key);
+          updateSinglePartyCountsTimeSeries(key);
 
         });
 
@@ -61,6 +62,7 @@ window.addEventListener("load", () => {
     })
 
     updateSinglePartyCounts(1);
+    updateSinglePartyCountsTimeSeries(1);
 
 
 
@@ -130,7 +132,7 @@ async function updateSinglePartyCounts(district) {
 
   //Resetter Chart
   var graphContainer = document.getElementById("mandaterPerPartiDiv");
-  graphContainer.innerHTML = '<canvas id="mandaterPerParti" style="width:100%;max-width:800px"></canvas>';
+  graphContainer.innerHTML = '<canvas id="mandaterPerParti" style="width:100%;max-width:1000px"></canvas>';
 
   //Getting
   let resp = fetch(`/resultater_part_mandater`, {
@@ -172,7 +174,6 @@ async function updateSinglePartyCounts(district) {
       ]
     };
 
-
     const myChart = new Chart("mandaterPerParti", {
         type: 'bar',
         data: dataseries,
@@ -184,17 +185,100 @@ async function updateSinglePartyCounts(district) {
              y: {
                stacked: true,
                min: 0,
-               max: 5,
+               max: 7,
+             }
+           }
+         }
+    });
+  })
+}
+
+
+async function updateSinglePartyCountsTimeSeries(district) {
+
+  let parties = await getParties();
+  let districts = await getDistricts();
+
+  //Resetter Chart
+  var graphContainer = document.getElementById("mandaterPerPartiOverTidDiv");
+  graphContainer.innerHTML = '<canvas id="mandaterPerPartiOverTid" style="height: 500px; width:100%;max-width:1000px"></canvas>';
+
+  let resp = fetch(`/resultater_part_mandater_time_series`, {
+    method: 'POST',
+    body: JSON.stringify({
+      district: district
+    }),
+    headers: {
+      "Content-type": "application/json; charset=UTF-8"
+    }
+  })
+  .then((response) => response.json())
+  .then(json => {
+
+
+    let labels = [];
+    let data = {};
+    let k = 0
+
+    //Setter opp array som skal fylles
+    for (const [key, value] of Object.entries(parties)) {
+      data[key] = [];
+    }
+
+    console.log(json);
+
+    //Henter data
+    for (const [key, value] of Object.entries(json)) {
+
+      console.log(key);
+
+      for (const [partinummer, mandater] of Object.entries(value)) {
+        data[partinummer].push(mandater['total']);
+      }
+      labels.push(k);
+      k += 1;
+    }
+
+    //Setter opp dataserier
+    let dataseries = {
+      labels: labels,
+      datasets: []
+    }
+
+    for (const [key, value] of Object.entries(parties)) {
+      dataseries['datasets'].push({
+         label: parties[key],
+         data: data[key],
+         fill: false,
+         tension: 0.1
+      })
+      //console.log(data[key])
+    }
+
+    console.log(dataseries);
+
+    const myChart = new Chart("mandaterPerPartiOverTid", {
+        type: 'line',
+        data: dataseries,
+        options: {
+           scales: {
+             x: {
+               stacked: false,
+             },
+             y: {
+               stacked: false,
+               min: 0,
+               max: 7,
              }
            }
          }
     });
 
 
-
   })
 
 }
+
 
 
 
