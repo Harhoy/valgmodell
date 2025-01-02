@@ -225,15 +225,22 @@ async function updateSinglePartyCountsTimeSeries(district) {
       data[key] = [];
     }
 
-    console.log(json);
+    //Gjøres om til et json i js, ikke dict
+    json = [json];
 
-    //Henter data
-    for (const [key, value] of Object.entries(json)) {
+    //Sorterer data etter dato
+    json.sort(function(a, b){
+      return a.SimuleringsID - b.SimuleringsID;
+    });
 
-      console.log(key);
+    //Henter ut selve jsonen
+    json = json[0];
 
-      for (const [partinummer, mandater] of Object.entries(value)) {
-        data[partinummer].push(mandater['total']);
+    //Legger over i arrays til chart
+    for (var i = 0; i < json.length; i++){
+      for (var j = 0; j < Object.keys(parties).length; j ++ ){
+        //console.log(j,json[i]['Data'][j + 1]['total']);
+        data[j + 1].push(json[i]['Data'][j + 1]['total']);
       }
       labels.push(k);
       k += 1;
@@ -255,7 +262,6 @@ async function updateSinglePartyCountsTimeSeries(district) {
       //console.log(data[key])
     }
 
-    console.log(dataseries);
 
     const myChart = new Chart("mandaterPerPartiOverTid", {
         type: 'line',

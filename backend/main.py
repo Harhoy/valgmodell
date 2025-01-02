@@ -83,7 +83,7 @@ def resultater_part_mandater_time_series():
 
         SIM_QUERY = text("SELECT ID, Dato from Simulering ORDER BY ID")
         result_simuleringer = db.engine.execute(SIM_QUERY)
-        RETURN_VAL = {}
+        RETURN_VAL = []
 
         for rowA in result_simuleringer:
 
@@ -91,15 +91,15 @@ def resultater_part_mandater_time_series():
             QUERY = text("SELECT Mandater_distrikt, Mandater_utjevning, Mandater_total, Parti FROM Resultater_parti WHERE SimuleringsID == " +  "'" + str(CURRENT_SIM) +  "'" + " AND " + " Fylke == " +  "'" + str(DISTRICT) +  "'"  + " ORDER BY Parti")
 
             result = db.engine.execute(QUERY)
-            RETURN_VAL[rowA[1]] = {}
+            RETURN_VAL_LOCAL = {'SimuleringsID': CURRENT_SIM, 'Data': {} , 'Dato': rowA[1]}
             for rowB in result:
                 distrikt = rowB[0]
                 utjevning = rowB[1]
                 total = rowB[2]
                 parti = rowB[3]
-                RETURN_VAL[rowA[1]][parti] = {'distrikt': distrikt, 'utjevning': utjevning, 'total': total}
+                RETURN_VAL_LOCAL['Data'][parti] = {'distrikt': distrikt, 'utjevning': utjevning, 'total': total}
 
-
+            RETURN_VAL.append(RETURN_VAL_LOCAL)
 
     return json.dumps(RETURN_VAL)
 
