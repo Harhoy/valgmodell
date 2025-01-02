@@ -28,11 +28,11 @@ def index():
 #----------------------------------------------
 @app.route("/getParties")
 def get_parties():
-    QUERY = text("SELECT ID, Name, Shortname FROM Parties ORDER BY ID")
+    QUERY = text("SELECT ID, Name, Shortname, R, G, B FROM Parties ORDER BY ID")
     RETURN_VAL = {}
     result = db.engine.execute(QUERY)
     for row in result:
-        RETURN_VAL[row[0]] = row[1]
+        RETURN_VAL[row[0]] = {'Name': row[1], 'R': row[3], 'G': row[4], 'B': row[5]}
     return json.dumps(RETURN_VAL)
 
 #----------------------------------------------

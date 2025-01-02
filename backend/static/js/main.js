@@ -81,6 +81,10 @@ window.addEventListener("load", () => {
 
 });
 
+function getRGBA(Rval, Gval, Bval) {
+  return "rgba(" + Rval + "," + Gval + "," + Bval + "," + "1.0)"
+}
+
 
 //------------------------------------------------
 //Funksjonalitet for å hente partier og fylker
@@ -152,7 +156,7 @@ async function updateSinglePartyCounts(district) {
 
     //Henter data
     for (const [key, value] of Object.entries(json)) {
-      labels.push(parties[key]);
+      labels.push(parties[key]['Name']);
       data['Utjevningsmandater'].push(value['utjevning']);
       data['Distriktsmandater'].push(value['distrikt']);
     }
@@ -253,11 +257,16 @@ async function updateSinglePartyCountsTimeSeries(district) {
     }
 
     for (const [key, value] of Object.entries(parties)) {
+
+
       dataseries['datasets'].push({
-         label: parties[key],
+         label: parties[key]['Name'],
          data: data[key],
          fill: false,
-         tension: 0.1
+         backgroundColor: getRGBA(parties[key]['R'],parties[key]['G'],parties[key]['B']),
+         borderColor: getRGBA(0,0,0),
+         borderWidth: .5,
+         lineTension: 0.1,
       })
       //console.log(data[key])
     }
