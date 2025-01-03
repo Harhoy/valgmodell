@@ -33,6 +33,8 @@ cur.execute("DELETE FROM Simulering;")
 conn.commit()
 cur.execute("DELETE FROM Resultater_parti;")
 conn.commit()
+cur.execute("DELETE FROM Resultater_kandidat;")
+conn.commit()
 
 #Date to start time series generation
 start_date = date(2024, 10, 1)

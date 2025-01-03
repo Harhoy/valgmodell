@@ -1,8 +1,4 @@
 
-const partyList = ['Ap', 'Frp','H', 'KrF','MDG','R','SP','SV','V'];
-
-const partyListLookup = {'Arbeiderpartiet':1, 'Fremskrittspartiet':2,'Høyre':3, 'Kristelig folkeparti':4,'Miljøpartiet de Grønne':5,'Rødt':6,'Senterpartiet':7,'Sosialistisk Venstreparti':8,'Venstre':9};
-
 window.addEventListener("load", () => {
 
   let resp = fetch(`/resultater_part_mandater`, {
@@ -205,7 +201,7 @@ async function updateSinglePartyCountsTimeSeries(district) {
 
   //Resetter Chart
   var graphContainer = document.getElementById("mandaterPerPartiOverTidDiv");
-  graphContainer.innerHTML = '<canvas id="mandaterPerPartiOverTid" style="height: 500px; width:100%;max-width:1000px"></canvas>';
+  graphContainer.innerHTML = '<canvas id="mandaterPerPartiOverTid" style="height: 500px; width:100%;max-width:1200px"></canvas>';
 
   let resp = fetch(`/resultater_part_mandater_time_series`, {
     method: 'POST',
@@ -221,6 +217,7 @@ async function updateSinglePartyCountsTimeSeries(district) {
 
 
     let labels = [];
+    let datesLables = [];
     let data = {};
     let k = 0
 
@@ -245,30 +242,32 @@ async function updateSinglePartyCountsTimeSeries(district) {
       for (var j = 0; j < Object.keys(parties).length; j ++ ){
         //console.log(j,json[i]['Data'][j + 1]['total']);
         data[j + 1].push(json[i]['Data'][j + 1]['total']);
+
+
       }
+      datesLables.push(json[i]['Dato']);
       labels.push(k);
       k += 1;
     }
 
     //Setter opp dataserier
     let dataseries = {
-      labels: labels,
+      labels: datesLables,
       datasets: []
     }
 
     for (const [key, value] of Object.entries(parties)) {
-
 
       dataseries['datasets'].push({
          label: parties[key]['Name'],
          data: data[key],
          fill: false,
          backgroundColor: getRGBA(parties[key]['R'],parties[key]['G'],parties[key]['B']),
-         borderColor: getRGBA(0,0,0),
-         borderWidth: .5,
-         lineTension: 0.1,
+         borderColor: getRGBA(parties[key]['R'],parties[key]['G'],parties[key]['B']),
+         borderWidth: 2,
+         tension: 0.1,
+         pointRadius: 1,
       })
-      //console.log(data[key])
     }
 
 

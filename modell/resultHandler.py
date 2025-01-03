@@ -146,16 +146,27 @@ class ResultHandler:
                     utjevning += str(tempDict[i][1]) + ";"
                     total += str(tempDict[i][2]) + ";"
 
-                #for i in range(self._partier):
-
-                #    distrikt_avg += str(tempDict2[i][0]) + ";"
-                #    utjevning_avg += str(tempDict2[i][1]) + ";"
-                #    total_avg += str(tempDict2[i][2]) + ";"
-
-                #write to db
+                # --- Write to db - counties ---
                 q = "insert into Resultater_parti (id, SimuleringsID, Parti, Fylke, Resultat_distrikt, Resultat_utjevning, Resultat_total, Mandater_distrikt, Mandater_utjevning, Mandater_total) values (?,?,?,?,?,?,?,?,?,?);"
                 data = (self.getId("Resultater_parti"), self._simuleringsID, party + 1, fylke + 1, distrikt, utjevning, total, round(tempDict2[fylke][party][0],1), round(tempDict2[fylke][party][1],1), round(tempDict2[fylke][party][2],1))
                 self._cursor.execute(q, data)
+
+                p_distrikt = 0
+                p_utjevning = 0
+                p_total = 0
+
+                # --- Write to db - candidates ---
+                for m in range(0,10):
+
+                    #Tar bare med positive sannsynligheter
+                    if m > 0:
+                        q = "insert into Resultater_kandidat (id, SimuleringsID, KandidatID, Parti, Fylke, Prob_direkte, Prob_utjevning, Prob_total) values (?,?,?,?,?,?,?,?);"
+                        data = (self.getId("Resultater_kandidat"), self._simuleringsID, m, party + 1, fylke + 1,100 -p_distrikt, 100-p_utjevning, 100-p_total)
+                        self._cursor.execute(q, data)
+
+                    p_distrikt += round(tempDict[m][0] / self._iterasjoner * 100, 1)
+                    p_utjevning += round(tempDict[m][1] / self._iterasjoner * 100, 1)
+                    p_total += round(tempDict[m][2] / self._iterasjoner * 100, 1)
 
 
         self.commitDB()

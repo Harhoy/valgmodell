@@ -19,6 +19,10 @@ db = SQLAlchemy(app) #ny database og sender inn appen her
 def valgdistrikt():
     return render_template("valgdistrikt.html")
 
+@app.route("/kandidater")
+def kandidater():
+    return render_template("kandidater.html")
+
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -102,6 +106,79 @@ def resultater_part_mandater_time_series():
             RETURN_VAL.append(RETURN_VAL_LOCAL)
 
     return json.dumps(RETURN_VAL)
+
+#----------------------------------------------
+#Getting counts for each county for newest but distribution data
+#----------------------------------------------
+@app.route("/resultater_part_mandater_hist", methods = ['POST'])
+def resultater_part_mandater_hist():
+
+    if request.method == "POST":
+
+        CURRENT_SIM = db.engine.execute("select max(id) from Simulering").fetchone()[0]
+        DISTRICT = request.args.get("district", default = 1, type = int)
+        #DISTRICT = request.json.get("district")
+        RETURN_VAL = {}
+
+        QUERY = text("SELECT Resultat_distrikt, Resultat_utjevning, Resultat_total, Parti FROM Resultater_parti WHERE SimuleringsID == " +  "'" + str(CURRENT_SIM) +  "'" + " AND " + " Fylke == " +  "'" + str(DISTRICT) +  "'"  + " ORDER BY Parti")
+
+        result = db.engine.execute(QUERY)
+        for row in result:
+            distrikt = row[0].split(";")
+            utjevning = row[1].split(";")
+            total = row[2].split(";")
+            parti = row[3]
+            RETURN_VAL[parti] = {'distrikt': distrikt, 'utjevning': utjevning, 'total': total}
+
+        return json.dumps(RETURN_VAL)
+
+
+
+#----------------------------------------------
+#Getting probabilities for each candidate
+#----------------------------------------------
+@app.route("/resultater_part_mandater_prob", methods = ['POST'])
+def resultater_part_mandater_prob():
+
+    if request.method == "POST":
+
+        CURRENT_SIM = db.engine.execute("select max(id) from Simulering").fetchone()[0]
+        DISTRICT = request.args.get("district", default = 1, type = int)
+        #DISTRICT = request.json.get("district")
+        RETURN_VAL = {}
+
+        #Getting the name to find the relevant candidates
+        CURRENT_DISTRICT_NAME = db.engine.execute("select Name from Districts WHERE ID == " +  "'" + str(DISTRICT) +"'" ).fetchone()[0]
+
+        #Getting the party name to find the relevant candidates
+        CURRENT_PARTY_NAMES = db.engine.execute("select Name, Shortname, ID from Parties" )
+
+        partyKey = {}
+        candiates = {}
+        for data in CURRENT_PARTY_NAMES:
+            partyKey[data[2]] = data[0]
+
+            QUERY_CAND = text("SELECT navn, alder, valgdistrikt, partinavn, kandidatnr from Kandidater_21 WHERE partinavn  == " +  "'" + partyKey[data[2]] +  "'" + " AND " + " valgdistrikt == " +  "'" + CURRENT_DISTRICT_NAME +  "'"  + "")
+
+            candidate_results = db.engine.execute(QUERY_CAND)
+            candiates[partyKey[data[2]]] = {}
+
+            for cand in candidate_results:
+                candiates[partyKey[data[2]]][cand[4]] = {'Navn': cand[0], 'Alder': cand[1]}
+
+        # ---- Getting probabilities ----
+        QUERY_PROB = text("SELECT KandidatID, Prob_total, Parti FROM Resultater_kandidat WHERE SimuleringsID == " +  "'" + str(CURRENT_SIM) +  "'" + " AND " + " Fylke == " +  "'" + str(DISTRICT) +  "'"  + " ORDER BY Parti, Prob_total")
+
+        result = db.engine.execute(QUERY_PROB)
+        for row in result:
+            kandidatnavn = candiates[partyKey[row[2]]][row[0]]['Navn']
+            if partyKey[row[2]] in RETURN_VAL.keys():
+                RETURN_VAL[partyKey[row[2]]][kandidatnavn] = row[1]
+            else:
+                RETURN_VAL[partyKey[row[2]]] = {kandidatnavn: row[1]}
+
+        return json.dumps(RETURN_VAL)
+
 
 #----------------------------------------------
 #Getting count for total for newest
