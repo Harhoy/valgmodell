@@ -143,8 +143,8 @@ def resultater_part_mandater_prob():
     if request.method == "POST":
 
         CURRENT_SIM = db.engine.execute("select max(id) from Simulering").fetchone()[0]
-        DISTRICT = request.args.get("district", default = 1, type = int)
-        #DISTRICT = request.json.get("district")
+        #DISTRICT = request.args.get("district", default = 1, type = int)
+        DISTRICT = request.json.get("district")
         RETURN_VAL = {}
 
         #Getting the name to find the relevant candidates
@@ -156,9 +156,10 @@ def resultater_part_mandater_prob():
         partyKey = {}
         candiates = {}
         for data in CURRENT_PARTY_NAMES:
-            partyKey[data[2]] = data[0]
+            partyKey[data[2]] = data[1]
 
-            QUERY_CAND = text("SELECT navn, alder, valgdistrikt, partinavn, kandidatnr from Kandidater_21 WHERE partinavn  == " +  "'" + partyKey[data[2]] +  "'" + " AND " + " valgdistrikt == " +  "'" + CURRENT_DISTRICT_NAME +  "'"  + "")
+
+            QUERY_CAND = text("SELECT navn, alder, valgdistrikt, partinavn, kandidatnr from Kandidater_21 WHERE partikode  == " +  "'" + partyKey[data[2]] +  "'" + " AND " + " valgdistrikt == " +  "'" + CURRENT_DISTRICT_NAME +  "'"  + "")
 
             candidate_results = db.engine.execute(QUERY_CAND)
             candiates[partyKey[data[2]]] = {}
@@ -171,11 +172,12 @@ def resultater_part_mandater_prob():
 
         result = db.engine.execute(QUERY_PROB)
         for row in result:
+            print(row[0],partyKey[row[2]])
             kandidatnavn = candiates[partyKey[row[2]]][row[0]]['Navn']
-            if partyKey[row[2]] in RETURN_VAL.keys():
-                RETURN_VAL[partyKey[row[2]]][kandidatnavn] = row[1]
+            if not partyKey[row[2]] in RETURN_VAL.keys():
+                RETURN_VAL[partyKey[row[2]]] = [{'Navn':kandidatnavn, 'P': row[1]}]
             else:
-                RETURN_VAL[partyKey[row[2]]] = {kandidatnavn: row[1]}
+                RETURN_VAL[partyKey[row[2]]].append({'Navn':kandidatnavn, 'P': row[1]})
 
         return json.dumps(RETURN_VAL)
 

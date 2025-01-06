@@ -51,6 +51,7 @@ window.addEventListener("load", () => {
           chooseDistrict.innerText = this.innerText;
           updateSinglePartyCounts(key);
           updateSinglePartyCountsTimeSeries(key);
+          updateCandidatesTable(key);
 
         });
 
@@ -59,6 +60,7 @@ window.addEventListener("load", () => {
 
     updateSinglePartyCounts(1);
     updateSinglePartyCountsTimeSeries(1);
+    updateCandidatesTable(1);
 
 
 
@@ -294,10 +296,77 @@ async function updateSinglePartyCountsTimeSeries(district) {
 }
 
 
+function candidateTableRow(data) {
+
+  let resp = '<tr>'
+  resp += "<td>" + data['Navn'] + '</td>'
+  resp += "<td>" + data['Parti'] + '</td>'
+  resp += "<td>" + data['Prob'] + '</td>'
+  resp += "</tr>"
+
+  return resp
+
+  /*
+  <tr>
+    <td >Alfreds Futterkiste</td>
+    <td>Maria Anders</td>
+    <td>100 %</td>
+  </tr>
+  */
+
+}
 
 
+async function updateCandidatesTable(district) {
+
+  let parties = await getParties();
+  let districts = await getDistricts();
+
+  console.log(parties);
+
+  let resp = fetch(`/resultater_part_mandater_prob` , {
+    method: 'POST',
+    body: JSON.stringify({
+      district: district
+    }),
+    headers: {
+      "Content-type": "application/json; charset=UTF-8"
+    }
+  })
+  .then((response) => response.json())
+  .then(json => {
+
+    //Henter data og sorterer
+    sortedJson = [];
+    for (const [key, value] of Object.entries(json)) {
+      for (k = 0; k < value.length; k++) {
+        sortedJson.push({'Navn': value[k]['Navn'], 'Prob': value[k]['P'], 'Parti': key});
+      }
+
+    }
+
+    sortedJson.sort(function(a, b){
+      return b.Prob -  a.Prob;
+    });
+
+    let table = document.getElementById("candidateListCounty");
+    table.innerHTML = "";
+    let htmlTable = "<tr><th>Navn</th><th>Parti</th><th>Total (%)</th></tr>";
+
+    for (var i = 0; i < sortedJson.length; i++) {
+      htmlTable += candidateTableRow(sortedJson[i]);
+
+    }
+
+    table.innerHTML = htmlTable;
+
+  })
+
+}
 
 /*
+
+
 const xValues = [50,60,70,80,90,100,110,120,130,140,150];
 const xValues2 = [10,10,170,180,190,1100,110,130,140,150,160];
 const yValues = [7,8,8,9,9,9,10,11,14,14,15];
