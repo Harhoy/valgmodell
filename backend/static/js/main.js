@@ -134,7 +134,7 @@ async function updateSinglePartyCounts(district) {
 
   //Resetter Chart
   var graphContainer = document.getElementById("mandaterPerPartiDiv");
-  graphContainer.innerHTML = '<canvas id="mandaterPerParti" style="width:100%;max-width:1000px"></canvas>';
+  graphContainer.innerHTML = '<canvas id="mandaterPerParti" style="height: 500px; width:100%;max-width:1200px"></canvas>';
 
   //Getting
   let resp = fetch(`/resultater_part_mandater`, {
@@ -321,8 +321,6 @@ async function updateCandidatesTable(district) {
 
   let parties = await getParties();
   let districts = await getDistricts();
-
-  console.log(parties);
 
   let resp = fetch(`/resultater_part_mandater_prob` , {
     method: 'POST',

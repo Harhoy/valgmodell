@@ -7,6 +7,7 @@ from valgsystem import ValgSystemNorge
 from scipy.stats import norm
 from tqdm import tqdm
 import datetime
+from random import random
 
 class Valgsimulering:
 
@@ -35,10 +36,11 @@ class Valgsimulering:
         self._vektingsmodell = VektingsmodellStandard(self._pollDatabase, self._dato)
         self._pollData = self._vektingsmodell.run()
 
-        print(self._pollData[0][0])
-
         # --- Seats data --- #
         self._seats = pd.read_csv(self._seatsFile, sep=';', header=None).values
+
+        # --- Uncertainty data --- #
+        self._uncertainty = pd.read_csv(self._uncertaintyFile, sep=';', header=None).values
 
         # --- Geo shares --- #
         self._geoShares = []
@@ -88,7 +90,6 @@ class Valgsimulering:
         #distribution of votes
         geoshareMatrix = self._geoShares[geoShare]
 
-
         #Just poll values
         if self._iterations == 1:
             for party in range(self._parties):
@@ -98,7 +99,12 @@ class Valgsimulering:
         else:
             #Random draws
             for party in range(self._parties):
+
+                #Polling error
                 self._voteSharesNational[party] = norm.ppf(random(), self._pollData[0][party], self._pollData[1][0][party])
+
+                #General uncertainty
+                self._voteSharesNational[party] += self._uncertainty[party][1] + random() * (self._uncertainty[party][0] - self._uncertainty[party][1])
 
             #Normalize
             for party in range(self._parties):
@@ -118,8 +124,9 @@ if __name__ == "__main__":
     geoShareFile = ["data/fylkesfordeling2013.csv"]
     seatsFile = "data/mandater24.csv"
     pollDatabase = "data/poll/db/Valg_db.db"
-    uncertaintyFile = ""
+    uncertaintyFile = "data/usikkerhet.csv"
     dato = datetime.datetime.now()
 
-    v = Valgsimulering(geoShareFile, seatsFile, pollDatabase, uncertaintyFile, dato, 2000)
+    v = Valgsimulering(geoShareFile, seatsFile, pollDatabase, uncertaintyFile, dato, 20)
     v.run()
+    print(v.returnResults())

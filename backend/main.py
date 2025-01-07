@@ -36,7 +36,7 @@ def get_parties():
     RETURN_VAL = {}
     result = db.engine.execute(QUERY)
     for row in result:
-        RETURN_VAL[row[0]] = {'Name': row[1], 'R': row[3], 'G': row[4], 'B': row[5]}
+        RETURN_VAL[row[0]] = {'Name': row[2], 'R': row[3], 'G': row[4], 'B': row[5]}
     return json.dumps(RETURN_VAL)
 
 #----------------------------------------------
@@ -172,12 +172,12 @@ def resultater_part_mandater_prob():
 
         result = db.engine.execute(QUERY_PROB)
         for row in result:
-            print(row[0],partyKey[row[2]])
+
             kandidatnavn = candiates[partyKey[row[2]]][row[0]]['Navn']
             if not partyKey[row[2]] in RETURN_VAL.keys():
-                RETURN_VAL[partyKey[row[2]]] = [{'Navn':kandidatnavn, 'P': row[1]}]
+                RETURN_VAL[partyKey[row[2]]] = [{'Navn':kandidatnavn, 'P': round(row[1],0)}]
             else:
-                RETURN_VAL[partyKey[row[2]]].append({'Navn':kandidatnavn, 'P': row[1]})
+                RETURN_VAL[partyKey[row[2]]].append({'Navn':kandidatnavn, 'P': round(row[1],0)})
 
         return json.dumps(RETURN_VAL)
 
@@ -191,4 +191,5 @@ def resultater_part_mandater_total():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    #app.run(debug=True)
+    app.run(host='192.168.1.88', port=5000, debug=True, threaded=False)

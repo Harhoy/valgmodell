@@ -14,13 +14,13 @@ def daterange(start_date, end_date):
         yield start_date + timedelta(n)
 
 #List of matrices with distribution of votes per party over counties
-geoShareFile = ["data/fylkesfordeling2013.csv"]
+geoShareFile = ["data/fylkesfordeling2021.csv"]
 #Seats per county
 seatsFile = "data/mandater24.csv"
 #Database with polls
 pollDatabase = "data/poll/db/Valg_db.db"
 #Empty file, for now
-uncertaintyFile = ""
+uncertaintyFile = "data/usikkerhet.csv"
 #Database to store results
 mainBase = "data/databaser/mainDB.db"
 resultsDatabase = "data/databaser/mainDB_TEST.db"
