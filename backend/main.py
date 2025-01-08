@@ -167,11 +167,13 @@ def resultater_part_mandater_prob():
             for cand in candidate_results:
                 candiates[partyKey[data[2]]][cand[4]] = {'Navn': cand[0], 'Alder': cand[1]}
 
+
         # ---- Getting probabilities ----
         QUERY_PROB = text("SELECT KandidatID, Prob_total, Parti FROM Resultater_kandidat WHERE SimuleringsID == " +  "'" + str(CURRENT_SIM) +  "'" + " AND " + " Fylke == " +  "'" + str(DISTRICT) +  "'"  + " ORDER BY Parti, Prob_total")
 
         result = db.engine.execute(QUERY_PROB)
         for row in result:
+
 
             kandidatnavn = candiates[partyKey[row[2]]][row[0]]['Navn']
             if not partyKey[row[2]] in RETURN_VAL.keys():

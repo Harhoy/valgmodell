@@ -39,7 +39,7 @@ conn.commit()
 #Date to start time series generation
 start_date = date(2024, 10, 1)
 #Date to end time series generation
-end_date = date(2024, 12, 18)
+end_date = date(2025, 1, 8)
 
 for dato in daterange(start_date, end_date):
 
