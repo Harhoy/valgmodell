@@ -248,8 +248,6 @@ async function updateSinglePartyCountsTimeSeries(district) {
       for (var j = 0; j < Object.keys(parties).length; j ++ ){
         //console.log(j,json[i]['Data'][j + 1]['total']);
         data[j + 1].push(json[i]['Data'][j + 1]['total']);
-
-
       }
       datesLables.push(json[i]['Dato']);
       labels.push(k);
@@ -347,72 +345,60 @@ async function updateCandidatesTable(district) {
 
     }
 
+    //Sorting probabilities
     sortedJson.sort(function(a, b){
       return b.Prob -  a.Prob;
     });
 
+    //Updating
     let table = document.getElementById("candidateListCounty");
     table.innerHTML = "";
     let htmlTable = "<tr><th>Navn</th><th>Parti</th><th>Total (%)</th></tr>";
-
     for (var i = 0; i < sortedJson.length; i++) {
       htmlTable += candidateTableRow(sortedJson[i]);
-
     }
-
     table.innerHTML = htmlTable;
-
-
-
   })
 
 }
 
 async function showCandidate() {
-  console.log(event.srcElement);
 
-  let name = await getCandidate(event.srcElement.innerHTML);
-  console.log(name);
+  //Getting  data on candidate
+  let data = await getCandidate(event.srcElement.innerHTML);
+  document.getElementById('candidateModal').style.display='block';
+
+  //Resetter Chart
+  var graphContainer = document.getElementById("candidateProbabilitesDiv");
+  graphContainer.innerHTML = '<canvas id="candidateProbabilites" style="height:500px;width:100%;max-width:800px"></canvas>';
+
+  let probabilities = data['probabilities'];
+
+  var nameDiv = document.getElementById("candidateNameModal");
+  nameDiv.innerText = data['name']
+
+  const dataseries = {
+    labels: probabilities,
+    datasets: [
+      {
+        label: 'Sannsynlighet for Stortingsplass',
+        data: probabilities,
+        backgroundColor: "red",
+      }
+    ]
+  };
+
+  const myChart = new Chart("candidateProbabilites", {
+      type: 'line',
+      data: dataseries,
+      options: {
+         scales: {
+           y: {
+             min: 0,
+             max: 100,
+           }
+         }
+       }
+  });
 
 }
-
-/*
-
-
-const xValues = [50,60,70,80,90,100,110,120,130,140,150];
-const xValues2 = [10,10,170,180,190,1100,110,130,140,150,160];
-const yValues = [7,8,8,9,9,9,10,11,14,14,15];
-
-
-const data = {
-labels: xValues,
-datasets: [{
-    label: 'en',
-    fill: false,
-    lineTension: 0,
-    backgroundColor: "rgba(0,0,255,1.0)",
-    borderColor: "rgba(0,0,255,0.1)",
-    data: yValues
-  },{
-      label: 'to',
-      fill: false,
-      lineTension: 0,
-      backgroundColor: "rgba(0,0,255,1.0)",
-      borderColor: "rgba(0,0,255,0.1)",
-      data: xValues2
-  }]
-};
-
-const myChart = new Chart("myChart", {
-    type: 'line',
-    data: data,
-    options: {
-        scales: {
-            y: {
-                beginAtZero: true
-            }
-        }
-    }
-});
-
-*/

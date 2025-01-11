@@ -209,7 +209,7 @@ def get_candidate_id():
     probabilities = []
     result = db.engine.execute(QUERY_PROB)
     for row in result:
-        probabilities.append(row[0])
+        probabilities.append(round(row[0]))
 
     response['probabilities'] = probabilities
 

@@ -18,6 +18,31 @@
   </div>
 </div>
 
+
+<div class="w3-container">
+  <div id="candidateModal" class="w3-modal">
+    <div class="w3-modal-content w3-animate-opacity">
+      <div class="w3-container w3-margin">
+        <span onclick="document.getElementById('candidateModal').style.display='none'" class="w3-button w3-display-topright">&times;</span>
+
+        <div class="w3-container w3-margin">
+
+          <div id="candidateNameModal">
+          </div>
+
+        </div>
+
+        <div class="w3-margin">
+          <div id="candidateProbabilitesDiv" class="graphDiv">
+            <canvas id="candidateProbabilites" style="height:500px;width:100%;max-width:800px"></canvas>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- First Grid -->
 <div class="w3-row-padding w3-light-grey w3-padding-64 w3-container">
   <div class="w3-content">
