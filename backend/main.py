@@ -174,7 +174,6 @@ def resultater_part_mandater_prob():
         result = db.engine.execute(QUERY_PROB)
         for row in result:
 
-
             kandidatnavn = candiates[partyKey[row[2]]][row[0]]['Navn']
             if not partyKey[row[2]] in RETURN_VAL.keys():
                 RETURN_VAL[partyKey[row[2]]] = [{'Navn':kandidatnavn, 'P': round(row[1],0)}]
@@ -183,6 +182,38 @@ def resultater_part_mandater_prob():
 
         return json.dumps(RETURN_VAL)
 
+
+
+@app.route("/getCandidateId", methods = ['POST'])
+def get_candidate_id():
+
+    #name to find in candiate list
+    name = request.json.get("Name")
+
+    #getting candidate number
+    QUERY_ID = text("SELECT valgdistrikt, kandidatnr, partikode FROM Kandidater_21 WHERE navn == " +  "'" + unicode(name) +  "'")
+    result = db.engine.execute(QUERY_ID).fetchone()
+
+    #informaton on the candidate
+    response = {'name':name, 'fylke': result[0], 'candidateID': result[1], 'party': result[2]}
+
+    # ---- Getting county number ----
+    response['candidateFylkeID'] = db.engine.execute("select ID from Districts WHERE Name == " +  "'" + unicode(response['fylke']) +"'" ).fetchone()[0]
+
+    # ---- Getting party number ----
+    response['candidatePartyID'] = db.engine.execute("select ID from Parties WHERE Shortname == " +  "'" + unicode(response['party']) +"'" ).fetchone()[0]
+
+    # ---- Getting probabilities ----
+    QUERY_PROB = text("SELECT Prob_total FROM Resultater_kandidat WHERE KandidatID == " +  "'" + str(response['candidateID']) +  "'" + " AND " + " Fylke == " +  "'" + str(response['candidateFylkeID']) +  "'"  + " AND " + " Parti == " +  "'" + str(response['candidatePartyID']) +  "'"  + " ORDER BY SimuleringsID")
+
+    probabilities = []
+    result = db.engine.execute(QUERY_PROB)
+    for row in result:
+        probabilities.append(row[0])
+
+    response['probabilities'] = probabilities
+
+    return json.dumps(response)
 
 #----------------------------------------------
 #Getting count for total for newest

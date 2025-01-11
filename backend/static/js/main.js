@@ -63,20 +63,6 @@ window.addEventListener("load", () => {
     updateCandidatesTable(1);
 
 
-
-    //chooseDistrict.addEventListener("click", function(e){]
-
-/*
-<div class="dropdown-menu" aria-labelledby="chooseDistrict">
-  <a class="dropdown-item" href="#">Action</a>
-  <a class="dropdown-item" href="#">Another action</a>
-  <a class="dropdown-item" href="#">Something else here</a>
-</div>
-
-*/
-
-
-
 });
 
 function getRGBA(Rval, Gval, Bval) {
@@ -125,6 +111,24 @@ async function getDistricts() {
   let list = await getDistrictList();
   return list;
 }
+
+//Kandidater
+async function getCandidate(name) {
+
+  //Getting
+  return fetch('/getCandidateId', {
+    method: "POST",
+    body: JSON.stringify({
+      Name: name
+    }),
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }).then(response => {
+    return response.json();
+  })
+}
+
 
 
 async function updateSinglePartyCounts(district) {
@@ -298,7 +302,7 @@ async function updateSinglePartyCountsTimeSeries(district) {
 
 function candidateTableRow(data) {
 
-  let resp = '<tr>'
+  let resp = '<tr onclick="showCandidate()">'
   resp += "<td>" + data['Navn'] + '</td>'
   resp += "<td>" + data['Parti'] + '</td>'
   resp += "<td>" + data['Prob'] + '</td>'
@@ -358,7 +362,17 @@ async function updateCandidatesTable(district) {
 
     table.innerHTML = htmlTable;
 
+
+
   })
+
+}
+
+async function showCandidate() {
+  console.log(event.srcElement);
+
+  let name = await getCandidate(event.srcElement.innerHTML);
+  console.log(name);
 
 }
 
