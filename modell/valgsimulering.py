@@ -60,6 +60,9 @@ class Valgsimulering:
         #Iterations, (direct, utjevning, total), counties, parties
         self._resultMatrix = np.zeros((self._iterations, 3, len(self._geoShares[0]), self._parties))
 
+        #Vote shares
+        self._resultsVoteShareNational = np.zeros((self._iterations,self._parties))
+
         for iter in tqdm(range(self._iterations)):
             #Calclate vote shares
             self.calcVotes()
@@ -118,6 +121,9 @@ class Valgsimulering:
 
     def returnResults(self):
         return self._resultMatrix
+
+    def returnPolls(self):
+        return self._voteSharesNational
 
 if __name__ == "__main__":
 

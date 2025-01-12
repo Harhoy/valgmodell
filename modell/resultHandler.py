@@ -175,6 +175,10 @@ class ResultHandler:
     def resultater_kandidat(self):
         pass
 
+    def resultater_snitt_nasjonalt(self):
+        pass
+
+
     #-------------------------------
     #Analyses kits
     #-------------------------------
@@ -182,6 +186,7 @@ class ResultHandler:
     def AKBasis(self):
         self._analyses.append(self.resultater_parti_counts)
         self._analyses.append(self.resultater_kandidat)
+        self._analyses.append(self.resultater_snitt_nasjonalt)
 
     #-------------------------------
     #Run the program

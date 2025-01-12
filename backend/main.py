@@ -203,6 +203,8 @@ def get_candidate_id():
     # ---- Getting party number ----
     response['candidatePartyID'] = db.engine.execute("select ID from Parties WHERE Shortname == " +  "'" + unicode(response['party']) +"'" ).fetchone()[0]
 
+    response['candidatePartyName'] = db.engine.execute("select Name from Parties WHERE Shortname == " +  "'" + unicode(response['party']) +"'" ).fetchone()[0]
+
     # ---- Getting probabilities ----
     QUERY_PROB = text("SELECT Prob_total FROM Resultater_kandidat WHERE KandidatID == " +  "'" + str(response['candidateID']) +  "'" + " AND " + " Fylke == " +  "'" + str(response['candidateFylkeID']) +  "'"  + " AND " + " Parti == " +  "'" + str(response['candidatePartyID']) +  "'"  + " ORDER BY SimuleringsID")
 

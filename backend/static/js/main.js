@@ -375,7 +375,13 @@ async function showCandidate() {
   let probabilities = data['probabilities'];
 
   var nameDiv = document.getElementById("candidateNameModal");
-  nameDiv.innerText = data['name']
+  nameDiv.innerText = data['name'];
+
+  var nameDiv = document.getElementById("candidatePartyModal");
+  nameDiv.innerText = data['candidatePartyName'];
+
+  var nameDiv = document.getElementById("candidateFylkeModal");
+  nameDiv.innerText = data['fylke'];
 
   const dataseries = {
     labels: probabilities,
