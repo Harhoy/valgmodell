@@ -45,6 +45,9 @@ class ResultHandler:
 
         self._maxBlocks = 60
 
+    def addPolls(self, polls):
+        self._pollData = polls
+
     #-------------------------------
     #Database operations
     #-------------------------------
@@ -176,7 +179,22 @@ class ResultHandler:
         pass
 
     def resultater_snitt_nasjonalt(self):
-        pass
+
+        #Opening database
+        self.openDB()
+
+        #averages across parties
+        res = self._pollData.sum(axis=0) / self._iterasjoner
+        for party in range(self._partier):
+
+            share = round(res[party] * 100,1)
+
+            query = "insert into Resultater_parti_national (id, SimuleringsID, Party, Share) values (?, ?, ?, ?)"
+            data = (self.getId("Resultater_parti_national"), self._simuleringsID, party + 1, share)
+            self._cursor.execute(query, data)
+
+        self.commitDB()
+        self.closeDB()
 
 
     #-------------------------------

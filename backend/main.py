@@ -4,7 +4,7 @@ from sqlalchemy import text
 from datetime import date
 import json
 import sqlite3
-
+from copy import deepcopy
 
 #Selve appen
 app = Flask(__name__)
@@ -15,6 +15,14 @@ app.config['SQLALCHEMY_DATABASE_URI'] = r"sqlite:///" + "/Users/bruker/Documents
 #Databse
 db = SQLAlchemy(app) #ny database og sender inn appen her
 
+@app.route("/getSimInfo")
+def get_sim_info():
+    QUERY = text("SELECT Dato, id FROM Simulering")
+    resp = []
+    for r in db.engine.execute(QUERY):
+        resp.append({'id': r[1], 'date':r[0]})
+    return json.dumps(resp)
+
 @app.route("/valgdistrikt")
 def valgdistrikt():
     return render_template("valgdistrikt.html")
@@ -22,6 +30,10 @@ def valgdistrikt():
 @app.route("/kandidater")
 def kandidater():
     return render_template("kandidater.html")
+
+@app.route("/partier")
+def partier():
+    return render_template("partier.html")
 
 @app.route("/")
 def index():
@@ -216,6 +228,31 @@ def get_candidate_id():
     response['probabilities'] = probabilities
 
     return json.dumps(response)
+
+
+@app.route("/Resultater_parti_national")
+def resultater_parti_national():
+
+        CURRENT_SIM = db.engine.execute("select max(id) from Simulering").fetchone()[0]
+        FIRST_SIM = db.engine.execute("select min(id) from Simulering").fetchone()[0]
+        sharesData = []
+
+        #Getting the party name to find the relevant candidates
+        CURRENT_PARTY_NAMES = db.engine.execute("select Name, Shortname, ID from Parties" )
+
+        partyKey = {}
+        for data in CURRENT_PARTY_NAMES:
+            partyKey[data[2]] = {'name': data[1], 'shares': 0.0}
+
+        for iter in range(CURRENT_SIM):
+            QUERY = text("SELECT Party, Share FROM Resultater_parti_national WHERE SimuleringsID == " +  "'" + str(iter + 1) +"'")
+            SIM_DATA = db.engine.execute(QUERY)
+            for res in SIM_DATA:
+                temp = deepcopy(partyKey)
+                temp[res[0]]['shares'] = res[1]
+            sharesData.append(temp)
+
+        return json.dumps(sharesData)
 
 #----------------------------------------------
 #Getting count for total for newest

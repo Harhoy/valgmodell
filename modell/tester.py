@@ -35,6 +35,8 @@ cur.execute("DELETE FROM Resultater_parti;")
 conn.commit()
 cur.execute("DELETE FROM Resultater_kandidat;")
 conn.commit()
+cur.execute("DELETE FROM Resultater_parti_national;")
+conn.commit()
 
 #Date to start time series generation
 start_date = date(2024, 10, 1)
@@ -50,4 +52,5 @@ for dato in daterange(start_date, end_date):
     print("Kjorer modell for", dato)
     simuleringsmodell = Valgsimulering(geoShareFile, seatsFile, pollDatabase, uncertaintyFile, dato, 1000)
     resultshandler = ResultHandler(resultsDatabase, simuleringsmodell.run(), dato)
+    resultshandler.addPolls(simuleringsmodell.returnPolls())
     resultshandler.run()

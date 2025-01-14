@@ -8,6 +8,7 @@ from scipy.stats import norm
 from tqdm import tqdm
 import datetime
 from random import random
+from copy import deepcopy
 
 class Valgsimulering:
 
@@ -80,6 +81,8 @@ class Valgsimulering:
             #Sum mandater
             self._resultMatrix[iter][2] = self._resultMatrix[iter][0] + self._resultMatrix[iter][1]
 
+            self._resultsVoteShareNational[iter] = deepcopy(self._voteSharesNational)
+
             #print(self._resultMatrix[0][0][0])
             #print(self._pollData[0])
 
@@ -119,11 +122,13 @@ class Valgsimulering:
             for constituency in range(self._constituencies):
                 self._sharePartyConstituency[constituency][party] = geoshareMatrix[constituency][party] * self._voteSharesNational[party]
 
+
+
     def returnResults(self):
         return self._resultMatrix
 
     def returnPolls(self):
-        return self._voteSharesNational
+        return self._resultsVoteShareNational
 
 if __name__ == "__main__":
 
