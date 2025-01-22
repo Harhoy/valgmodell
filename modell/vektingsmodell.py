@@ -21,9 +21,11 @@ import datetime
 
 '''
 
+smallNumber = 0.0000000001
+
 class VektingsmodellStandard:
 
-    def __init__(self, database, dateNow, dateA = 30.0, dateB = 45.0, method = "Standard", omraade = "Hele landet"):
+    def __init__(self, database, dateNow, dateA = 15.0, dateB = 30.0, method = "Standard", omraade = "Hele landet"):
 
         #Database with downloaded data on polls
         self._database = database
@@ -95,7 +97,7 @@ class VektingsmodellStandard:
 
         #convert matrix to fractions
 
-        self._shareMarix = self._shareMarix / 100.0 
+        self._shareMarix = self._shareMarix / 100.0
 
 
         #Calculates the weight given to each observation based on the date
@@ -104,14 +106,14 @@ class VektingsmodellStandard:
         diff = float((now - date).days)
 
         if diff < 0:
-            return 0
+            return smallNumber
 
         if diff < self._dateB:
             if diff < self._dateA:
                 return 1
             else:
                 return 1 - (diff - self._dateA) / (self._dateB - self._dateA)
-        return 0
+        return smallNumber
 
         #Method to calculate averages according to Jackman (2005) - plus day count
     def calcWeightedAveragesStandard(self):
@@ -153,5 +155,5 @@ if __name__ == "__main__":
 
     vm = VektingsmodellStandard("data/poll/db/Valg_db.db",datetime.datetime.now())
     r = vm.run()
-    #print(r[0])
+    print(r[0])
     #print(r[1])

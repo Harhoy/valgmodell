@@ -230,7 +230,7 @@ def get_candidate_id():
     return json.dumps(response)
 
 
-@app.route("/Resultater_parti_national")
+@app.route("/resultater_parti_national")
 def resultater_parti_national():
 
         CURRENT_SIM = db.engine.execute("select max(id) from Simulering").fetchone()[0]
@@ -247,8 +247,8 @@ def resultater_parti_national():
         for iter in range(CURRENT_SIM):
             QUERY = text("SELECT Party, Share FROM Resultater_parti_national WHERE SimuleringsID == " +  "'" + str(iter + 1) +"'")
             SIM_DATA = db.engine.execute(QUERY)
+            temp = deepcopy(partyKey)
             for res in SIM_DATA:
-                temp = deepcopy(partyKey)
                 temp[res[0]]['shares'] = res[1]
             sharesData.append(temp)
 
@@ -261,7 +261,6 @@ def resultater_parti_national():
 def resultater_part_mandater_total():
     pass
 
-
 if __name__ == "__main__":
-    #app.run(debug=True)
-    app.run(host='192.168.1.88', port=5000, debug=True, threaded=False)
+    app.run(debug=True)
+    #app.run(host='192.168.1.88', port=5000, debug=True, threaded=False)

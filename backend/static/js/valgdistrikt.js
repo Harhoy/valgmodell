@@ -1,4 +1,6 @@
 
+//import {testModules} from './functions.js';
+
 window.addEventListener("load", () => {
 
   let resp = fetch(`/resultater_part_mandater`, {
@@ -14,6 +16,9 @@ window.addEventListener("load", () => {
   .then(json => {
     //console.log(json);
   })
+
+
+  //console.log(testModules());
 
   //-----------------------------------------------
   //Valgbutton distrikt
@@ -129,6 +134,24 @@ async function getCandidate(name) {
   })
 }
 
+//Simuleringsinfo
+function getSimInfoList() {
+
+  //Getting
+  return fetch('/getSimInfo', {
+    method: "GET",
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }).then(response => {
+    return response.json();
+  })
+}
+
+async function getSimInfo() {
+  let list = await getSimInfoList();
+  return list;
+}
 
 
 async function updateSinglePartyCounts(district) {
@@ -243,6 +266,8 @@ async function updateSinglePartyCountsTimeSeries(district) {
     //Henter ut selve jsonen
     json = json[0];
 
+    //console.log(json);
+
     //Legger over i arrays til chart
     for (var i = 0; i < json.length; i++){
       for (var j = 0; j < Object.keys(parties).length; j ++ ){
@@ -307,14 +332,6 @@ function candidateTableRow(data) {
   resp += "</tr>"
 
   return resp
-
-  /*
-  <tr>
-    <td >Alfreds Futterkiste</td>
-    <td>Maria Anders</td>
-    <td>100 %</td>
-  </tr>
-  */
 
 }
 
