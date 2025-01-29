@@ -128,6 +128,7 @@ class Valgsimulering:
         return self._resultMatrix
 
     def returnPolls(self):
+        #print(self._voteSharesNational)
         return self._resultsVoteShareNational
 
 if __name__ == "__main__":

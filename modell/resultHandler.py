@@ -109,7 +109,7 @@ class ResultHandler:
 
     def resultater_parti_counts(self):
 
-        #In futre, this should be rewritten in pandas...
+        #In future, this should be rewritten in pandas...
 
         #Opening database
         self.openDB()

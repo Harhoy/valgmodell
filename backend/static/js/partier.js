@@ -25,6 +25,9 @@ window.addEventListener("load", () => {
 
 async function getNationalShares() {
 
+  let parties = await getParties();
+  let districts = await getDistricts();
+
   //Datoer
   let dates = [];
   let simInfo = await getSimInfo();
@@ -50,39 +53,41 @@ async function getNationalShares() {
         data[key] = [];
       }
 
-      for (var i = 0; i < json.length; i++){
-        for (var j = 0; j < json[i].length; j++) {
-          console.log(i + j);
-          data[i+1].push(json[i][j]['shares']);
+      for (var i = 0; i < json.length-1; i++){
+        for (var j = 0; j < 9; j++) {
+          //console.log(i , j,json[i][j+1]);
+          data[j+1].push(json[i][j+1]['shares']);
         }
       }
 
-      /*
+      console.log(data);
+
+
       const dataseries = {
-        labels: probabilities,
+        labels: data[1],
         datasets: [
           {
             label: 'Sannsynlighet for Stortingsplass',
-            data: probabilities,
+            data: data[2],
             backgroundColor: "red",
           }
         ]
       };
 
-      const myChart = new Chart("candidateProbabilites", {
+      const myChart = new Chart("partyShare", {
           type: 'line',
           data: dataseries,
           options: {
              scales: {
                y: {
                  min: 0,
-                 max: 100,
+                 max: 30,
                }
              }
            }
       });
 
-    */
+
 
     });
 

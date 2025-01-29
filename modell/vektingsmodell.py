@@ -21,7 +21,7 @@ import datetime
 
 '''
 
-smallNumber = 0.0000000001
+smallNumber = 0.02
 
 class VektingsmodellStandard:
 
@@ -136,6 +136,8 @@ class VektingsmodellStandard:
             self._weigthMatrix[:, i] = self._weigthMatrix[:, i] / columnSums[i]
             self._standardDeviationWeighted[i] = (1.0 / columnSums[i]) ** .5
 
+        #print(self._weigthMatrix)
+
         #Finally weighting the matrix shares
         self._shareMarixWeighted = np.multiply(self._shareMarix, self._weigthMatrix).sum(axis=0)
 
@@ -153,7 +155,10 @@ class VektingsmodellStandard:
 
 if __name__ == "__main__":
 
-    vm = VektingsmodellStandard("data/poll/db/Valg_db.db",datetime.datetime.now())
+    date = datetime.datetime(2025, 1, 10, 18, 00)
+
+    vm = VektingsmodellStandard("data/poll/db/Valg_db.db", date)
+    #print(datetime.datetime.now())
     r = vm.run()
     print(r[0])
-    #print(r[1])
+    print(r[1])
