@@ -299,6 +299,8 @@ async function updateSinglePartyCountsTimeSeries(district) {
       })
     }
 
+    console.log(dataseries);
+
 
     const myChart = new Chart("mandaterPerPartiOverTid", {
         type: 'line',

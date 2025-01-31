@@ -1,4 +1,47 @@
 
+
+function getRGBA(Rval, Gval, Bval) {
+  return "rgba(" + Rval + "," + Gval + "," + Bval + "," + "1.0)"
+}
+
+//Partier
+function getPartyList() {
+
+  //Getting
+  return fetch('/getParties', {
+    method: "GET",
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }).then(response => {
+    return response.json();
+  })
+}
+
+async function getParties() {
+  let partyList = await getPartyList();
+  return partyList;
+}
+
+//Fylker
+function getDistrictList() {
+
+  //Getting
+  return fetch('/getDistricts', {
+    method: "GET",
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }).then(response => {
+    return response.json();
+  })
+}
+
+async function getDistricts() {
+  let list = await getDistrictList();
+  return list;
+}
+
 //Simuleringsinfo
 function getSimInfoList() {
 
@@ -44,48 +87,82 @@ async function getNationalShares() {
     })
     .then((response) => response.json())
     .then(json => {
-      console.log(json);
+      //console.log(json);
 
       let labels = [];
+      let datesLables = [];
       let data = {};
+      let k = 0
 
-      for (const [key, value] of Object.entries(json[0])) {
+      //Setter opp array som skal fylles
+      for (const [key, value] of Object.entries(parties)) {
         data[key] = [];
       }
 
-      for (var i = 0; i < json.length-1; i++){
-        for (var j = 0; j < 9; j++) {
-          //console.log(i , j,json[i][j+1]);
-          data[j+1].push(json[i][j+1]['shares']);
+      /*
+      //Gjøres om til et json i js, ikke dict
+      json = [json];
+
+      //Sorterer data etter dato
+      json.sort(function(a, b){
+        return a.SimuleringsID - b.SimuleringsID;
+      });
+
+      //Henter ut selve jsonen
+      json = json[0];
+      */
+      //console.log(json);
+
+      //Legger over i arrays til chart
+      for (var i = 0; i < json.length; i++){
+        for (var j = 0; j < Object.keys(parties).length; j ++ ){
+          //console.log(json[i][j+1]['shares']);
+          data[j + 1].push(json[i][j+1]['shares']);
         }
+        datesLables.push(i);
+        labels.push(k);
+        k += 1;
       }
 
-      console.log(data);
+      //Setter opp dataserier
+      let dataseries = {
+        labels: datesLables,
+        datasets: []
+      }
 
+      for (const [key, value] of Object.entries(parties)) {
 
-      const dataseries = {
-        labels: data[1],
-        datasets: [
-          {
-            label: 'Sannsynlighet for Stortingsplass',
-            data: data[2],
-            backgroundColor: "red",
-          }
-        ]
-      };
+        dataseries['datasets'].push({
+           label: parties[key]['Name'],
+           data: data[key],
+           fill: false,
+           backgroundColor: getRGBA(parties[key]['R'],parties[key]['G'],parties[key]['B']),
+           borderColor: getRGBA(parties[key]['R'],parties[key]['G'],parties[key]['B']),
+           borderWidth: 2,
+           tension: 1,
+           pointRadius: 1,
+        })
+      }
+
+      console.log(dataseries);
 
       const myChart = new Chart("partyShare", {
           type: 'line',
           data: dataseries,
           options: {
              scales: {
+               x: {
+                 stacked: false,
+               },
                y: {
+                 stacked: false,
                  min: 0,
                  max: 30,
                }
              }
            }
       });
+
 
 
 
