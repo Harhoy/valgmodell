@@ -139,7 +139,7 @@ async function getNationalShares() {
            backgroundColor: getRGBA(parties[key]['R'],parties[key]['G'],parties[key]['B']),
            borderColor: getRGBA(parties[key]['R'],parties[key]['G'],parties[key]['B']),
            borderWidth: 2,
-           tension: 1,
+           tension: .1,
            pointRadius: 1,
         })
       }

@@ -25,7 +25,7 @@ smallNumber = 0.02
 
 class VektingsmodellStandard:
 
-    def __init__(self, database, dateNow, dateA = 15.0, dateB = 30.0, method = "Standard", omraade = "Hele landet"):
+    def __init__(self, database, dateNow, dateA = 15.0, dateB = 45.0, method = "Standard", omraade = "Hele landet"):
 
         #Database with downloaded data on polls
         self._database = database
