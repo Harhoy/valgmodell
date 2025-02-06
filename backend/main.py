@@ -261,6 +261,15 @@ def resultater_parti_national():
 def resultater_part_mandater_total():
     pass
 
+@app.route("/simulation_dates")
+def simulation_dates():
+    QUERY = text("SELECT id, Dato from Simulering")
+    RES = db.engine.execute(QUERY)
+    returnVal = []
+    for r in RES:
+        returnVal.append(r[1])
+    return json.dumps(returnVal)
+
 if __name__ == "__main__":
     app.run(debug=True)
     #app.run(host='192.168.1.88', port=5000, debug=True, threaded=False)

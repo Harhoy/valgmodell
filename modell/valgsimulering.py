@@ -29,6 +29,8 @@ class Valgsimulering:
         #Read data and populate data structures
         self.setup()
 
+        self._otherPartyIndex = -1
+
 
 
     def setup(self):
@@ -114,7 +116,7 @@ class Valgsimulering:
 
             #Normalize
             for party in range(self._parties):
-                self._voteSharesNational[party] = self._voteSharesNational[party] / self._voteSharesNational.sum()
+                self._voteSharesNational[party] = self._voteSharesNational[party] / self._voteSharesNational.sum() * (1-self._pollData[0][self._otherPartyIndex])
 
         #Vote shares per constituency, per party
         self._sharePartyConstituency = np.zeros((self._constituencies, self._parties))
@@ -140,4 +142,4 @@ if __name__ == "__main__":
 
     v = Valgsimulering(geoShareFile, seatsFile, pollDatabase, uncertaintyFile, dato, 20)
     v.run()
-    print(v.returnResults())
+    #print(v.returnResults())

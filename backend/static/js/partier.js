@@ -4,6 +4,26 @@ function getRGBA(Rval, Gval, Bval) {
   return "rgba(" + Rval + "," + Gval + "," + Bval + "," + "1.0)"
 }
 
+
+//Datoer
+function getDatesList() {
+
+  //Getting
+  return fetch('/simulation_dates', {
+    method: "GET",
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }).then(response => {
+    return response.json();
+  })
+}
+
+async function getDates() {
+  let dateList = await getDatesList();
+  return dateList;
+}
+
 //Partier
 function getPartyList() {
 
@@ -71,13 +91,13 @@ async function getNationalShares() {
   let parties = await getParties();
   let districts = await getDistricts();
 
+
   //Datoer
   let dates = [];
   let simInfo = await getSimInfo();
   for (var i = 0; i < simInfo.length; i++) {
     dates.push(simInfo[i]['date']);
   }
-
 
   let resp = fetch(`/resultater_parti_national`, {
     method: 'GET',

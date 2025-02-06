@@ -155,7 +155,7 @@ class VektingsmodellStandard:
 
 if __name__ == "__main__":
 
-    date = datetime.datetime(2025, 1, 10, 18, 00)
+    date = datetime.datetime(2025, 1, 20, 18, 00)
 
     vm = VektingsmodellStandard("data/poll/db/Valg_db.db", date)
     #print(datetime.datetime.now())
