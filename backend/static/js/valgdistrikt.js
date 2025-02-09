@@ -1,6 +1,26 @@
 
 //import {testModules} from './functions.js';
 
+//Datoer
+function getDatesList() {
+
+  //Getting
+  return fetch('/simulation_dates', {
+    method: "GET",
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }).then(response => {
+    return response.json();
+  })
+}
+
+async function getDates() {
+  let dateList = await getDatesList();
+  return dateList;
+}
+
+
 window.addEventListener("load", () => {
 
   let resp = fetch(`/resultater_part_mandater`, {
@@ -387,6 +407,8 @@ async function showCandidate() {
   let data = await getCandidate(event.srcElement.innerHTML);
   document.getElementById('candidateModal').style.display='block';
 
+  let dates = await getDates();
+
   //Resetter Chart
   var graphContainer = document.getElementById("candidateProbabilitesDiv");
   graphContainer.innerHTML = '<canvas id="candidateProbabilites" style="height:500px;width:100%;max-width:800px"></canvas>';
@@ -402,8 +424,9 @@ async function showCandidate() {
   var nameDiv = document.getElementById("candidateFylkeModal");
   nameDiv.innerText = data['fylke'];
 
+
   const dataseries = {
-    labels: probabilities,
+    labels: dates,
     datasets: [
       {
         label: 'Sannsynlighet for Stortingsplass',

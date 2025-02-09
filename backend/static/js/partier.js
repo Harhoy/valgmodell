@@ -146,7 +146,7 @@ async function getNationalShares() {
 
       //Setter opp dataserier
       let dataseries = {
-        labels: datesLables,
+        labels: dates,
         datasets: []
       }
 
@@ -164,7 +164,7 @@ async function getNationalShares() {
         })
       }
 
-      console.log(dataseries);
+      //console.log(dataseries);
 
       const myChart = new Chart("partyShare", {
           type: 'line',

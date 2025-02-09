@@ -270,6 +270,16 @@ def simulation_dates():
         returnVal.append(r[1])
     return json.dumps(returnVal)
 
+
+@app.route("/simInfo")
+def simInfo():
+    QUERY = text("SELECT Date from Info")
+    res = db.engine.execute(QUERY)
+
+    return "ok"
+
+
+
 if __name__ == "__main__":
     app.run(debug=True)
     #app.run(host='192.168.1.88', port=5000, debug=True, threaded=False)
