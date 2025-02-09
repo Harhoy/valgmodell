@@ -12,7 +12,11 @@ def getMaaling(id):
     parsed_html = BeautifulSoup(html,'html.parser')
     data = {}
 
+
     try:
+        #henter aarstall
+        b = parsed_html.find_all('title')
+        aar = int(str(b[0]).split(" ")[-1].strip("</title>"))
         for a in parsed_html.find_all('a', href =True):
             cand = a['href'].split("=")
             #print(cand)
@@ -42,7 +46,7 @@ def getMaaling(id):
         a = parsed_html.find_all("td", string="Tatt opp")[0]
         dato = a.find_next_sibling("td").string
 
-        return {'status': "ok", 'data': data, 'valgtype': valgtype, 'omraade': omraade, 'institutt':institutt, 'antall spurte': utvalgsstorrelse,'dato': dato, 'id': id}
+        return {'status': "ok", 'data': data, 'valgtype': valgtype, 'omraade': omraade, 'institutt':institutt, 'antall spurte': utvalgsstorrelse,'dato': dato, 'id': id, 'aar': aar}
     except:
         return {'status': "fail"}
 
@@ -56,7 +60,7 @@ def insertMaaling(maaling,  conn):
 
     if count == 0:
 
-        sql = "insert into malinger (ID_POP, AP, H, Frp, SV, Sp, KrF, V, MDG, R, A, Valgtype, Omraade, Institutt, Utvalgsstorrelse, Dato) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
+        sql = "insert into malinger (ID_POP, AP, H, Frp, SV, Sp, KrF, V, MDG, R, A, Valgtype, Omraade, Institutt, Utvalgsstorrelse, Dato, Aar) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
         data = (maaling['id'],
                 maaling['data']['Ap'],
                 maaling['data']['H'],
@@ -72,7 +76,8 @@ def insertMaaling(maaling,  conn):
                 maaling['omraade'],
                 maaling['institutt'],
                 maaling['antall spurte'],
-                maaling['dato'])
+                maaling['dato'],
+                maaling['aar'])
 
         cursor.execute(sql, data)
         conn.commit()
@@ -97,9 +102,10 @@ if __name__ == "__main__":
     hentet = 0
 
     '''
-    m = getMaaling(5363)
+    m = getMaaling(5421)
     print(insertMaaling(m, conn))
     print(m['status'])
+
     '''
     print("henter")
     while tries < maxTries and lastStatus != "fail":
@@ -110,7 +116,8 @@ if __name__ == "__main__":
             tries += 1
             lastVal += 1
             hentet += 1
-            time.sleep(30)
+            print("hentet",resp)
+            time.sleep(5)
         else:
             lastStatus = "fail"
             tries = float("inf")

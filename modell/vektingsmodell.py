@@ -21,11 +21,11 @@ import datetime
 
 '''
 
-smallNumber = 0.02
+smallNumber = 0.00000001
 
 class VektingsmodellStandard:
 
-    def __init__(self, database, dateNow, dateA = 15.0, dateB = 45.0, method = "Standard", omraade = "Hele landet"):
+    def __init__(self, database, dateNow, dateA = 20.0, dateB = 40.0, method = "Standard", omraade = "Hele landet"):
 
         #Database with downloaded data on polls
         self._database = database
@@ -49,7 +49,7 @@ class VektingsmodellStandard:
         #Extract raw data from database
     def getData(self):
 
-        query = "SELECT AP, Frp, H, Krf, MDG, R, Sp, SV, V, A, Utvalgsstorrelse, Dato FROM Malinger WHERE Omraade == " +  "'" + self._omraade +  "'"
+        query = "SELECT AP, Frp, H, Krf, MDG, R, Sp, SV, V, A, Utvalgsstorrelse, Dato, Aar FROM Malinger WHERE Omraade == " +  "'" + self._omraade +  "'"
 
         self._results = []
         for row in self._conn.execute(query):
@@ -66,7 +66,10 @@ class VektingsmodellStandard:
             temp['A'] = row[9]
             temp['N'] = row[10]
             temp['Dato'] = row[11]
+            temp['Aar'] = row[12]
             self._results.append(deepcopy(temp))
+
+            #print(row[11])
 
         #Move data over to numpy arrays
     def numpify(self):
@@ -87,13 +90,16 @@ class VektingsmodellStandard:
             self._observations[i] = self._results[i]['N']
 
             dato = self._results[i]['Dato'].replace(" - ", "/").split("/")
+            aar = self._results[i]['Aar']
             #Start of poll (Y M D)
-            dato1 = datetime.datetime(2024, int(dato[1]), int(dato[0]))
+            dato1 = datetime.datetime(aar, int(dato[1]), int(dato[0]))
             #End of poll
-            dato2 = datetime.datetime(2024, int(dato[3]), int(dato[2]))
+            dato2 = datetime.datetime(aar, int(dato[3]), int(dato[2]))
 
             #Date distance weight
             self._dates[i] = self.dateWeight(dato1)
+
+            #print(self._shareMarix[i][0],self._dates[i])
 
         #convert matrix to fractions
 
@@ -155,9 +161,9 @@ class VektingsmodellStandard:
 
 if __name__ == "__main__":
 
-    date = datetime.datetime(2025, 1, 20, 18, 00)
+    date = datetime.datetime(2025, 2, 5, 18, 00)
 
-    vm = VektingsmodellStandard("data/poll/db/Valg_db.db", date)
+    vm = VektingsmodellStandard("../dataGet/db/Valg_db.db", date)
     #print(datetime.datetime.now())
     r = vm.run()
     print(r[0])

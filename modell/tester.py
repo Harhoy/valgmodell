@@ -18,7 +18,7 @@ geoShareFile = ["data/fylkesfordeling2021.csv"]
 #Seats per county
 seatsFile = "data/mandater24.csv"
 #Database with polls
-pollDatabase = "data/poll/db/Valg_db.db"
+pollDatabase = "../dataGet/db/Valg_db.db"
 #Empty file, for now
 uncertaintyFile = "data/usikkerhet.csv"
 #Database to store results
@@ -43,7 +43,7 @@ conn.commit()
 #Date to start time series generation
 start_date = date(2024, 10, 1)
 #Date to end time series generation
-end_date = date(2025, 1, 31)
+end_date = date(2025, 2, 6)
 
 print(dato.year, dato.day, dato.month)
 
