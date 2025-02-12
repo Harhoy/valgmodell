@@ -43,7 +43,7 @@ conn.commit()
 #Date to start time series generation
 start_date = date(2024, 10, 1)
 #Date to end time series generation
-end_date = date(2025, 2, 6)
+end_date = date(2025, 2, 11)
 
 print(dato.year, dato.day, dato.month)
 
