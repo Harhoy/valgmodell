@@ -62,6 +62,26 @@ async function getDistricts() {
   return list;
 }
 
+
+//Koalisjoner
+function getCoalitionList() {
+
+  //Getting
+  return fetch('/getCoalitions', {
+    method: "GET",
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }).then(response => {
+    return response.json();
+  })
+}
+
+async function getCoalitions() {
+  let list = await getCoalitionList();
+  return list;
+}
+
 //Simuleringsinfo
 function getSimInfoList() {
 
@@ -83,6 +103,7 @@ async function getSimInfo() {
 
 window.addEventListener("load", () => {
   getNationalShares();
+  getCoaltionResults();
 });
 
 
@@ -118,21 +139,6 @@ async function getNationalShares() {
       for (const [key, value] of Object.entries(parties)) {
         data[key] = [];
       }
-
-      /*
-      //Gjøres om til et json i js, ikke dict
-      json = [json];
-
-      //Sorterer data etter dato
-      json.sort(function(a, b){
-        return a.SimuleringsID - b.SimuleringsID;
-      });
-
-      //Henter ut selve jsonen
-      json = json[0];
-      */
-      //console.log(json);
-
       //Legger over i arrays til chart
       for (var i = 0; i < json.length; i++){
         for (var j = 0; j < Object.keys(parties).length; j ++ ){
@@ -182,11 +188,95 @@ async function getNationalShares() {
              }
            }
       });
+    });
+}
+
+async function getCoaltionResults() {
+
+  let parties = await getParties();
+  let coalitions = await getCoalitionList();
 
 
+  console.log(coalitions);
 
+  //Datoer
+  let dates = [];
+  let simInfo = await getSimInfo();
+  for (var i = 0; i < simInfo.length; i++) {
+    dates.push(simInfo[i]['date']);
+  }
+
+  let resp = fetch(`/resultater_kaolisjon_national`, {
+    method: 'GET',
+    headers: {
+    "Content-type": "application/json; charset=UTF-8"
+      }
+    })
+    .then((response) => response.json())
+    .then(json => {
+      //console.log(json);
+
+      let labels = [];
+      let datesLables = [];
+      let data = {};
+      let k = 0
+
+      //Setter opp array som skal fylles
+      for (const [key, value] of Object.entries(coalitions)) {
+        data[key] = [];
+      }
+
+      //Legger over i arrays til chart
+      for (var i = 0; i < json.length; i++){
+        for (var j = 0; j < Object.keys(coalitions).length; j ++ ){
+          console.log(json[i][j+1]['navn']);
+          data[json[i][j+1]['navn']].push(json[i][j+1]['mandater']);
+        }
+        datesLables.push(i);
+        labels.push(k);
+        k += 1;
+      }
+
+
+      //Setter opp dataserier
+      let dataseries = {
+        labels: dates,
+        datasets: []
+      }
+
+      for (const [key, value] of Object.entries(coalitions)) {
+
+        dataseries['datasets'].push({
+           label: key,
+           data: data[key],
+           fill: false,
+           backgroundColor: getRGBA(coalitions[key]['R'],coalitions[key]['G'],coalitions[key]['B']),
+           borderColor: getRGBA(coalitions[key]['R'],coalitions[key]['G'],coalitions[key]['B']),
+           borderWidth: 2,
+           tension: .1,
+           pointRadius: 1,
+        })
+      }
+
+      //console.log(dataseries);
+
+      const myChart = new Chart("coalitionMandater", {
+          type: 'line',
+          data: dataseries,
+          options: {
+             scales: {
+               x: {
+                 stacked: false,
+               },
+               y: {
+                 stacked: false,
+                 min: 0,
+                 max: 110,
+               }
+             }
+           }
+      });
 
     });
-
 
 }

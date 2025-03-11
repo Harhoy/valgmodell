@@ -65,6 +65,30 @@ def get_districts():
 
 
 #----------------------------------------------
+#Getting party coaltion names and numbers
+#----------------------------------------------
+@app.route("/getCoalitions")
+def get_coalitions():
+    parties_data = json.loads(get_parties())
+    QUERY = text("SELECT Navn, Partier FROM Koalisjon ORDER BY ID")
+    RETURN_VAL = {}
+    result = db.engine.execute(QUERY)
+    for row in result:
+        RETURN_VAL[row[0]] = {'R':0.0, 'G':0.0, 'B':0.0}
+        k = 0
+        parties = row[1].split("-")
+        parties = [int(x) for x in parties]
+        for party in parties:
+            for col in ['R','G','B']:
+                RETURN_VAL[row[0]][col] += parties_data[str(party)][col]
+            k += 1
+        for col in ['R','G','B']:
+            RETURN_VAL[row[0]][col] = int(RETURN_VAL[row[0]][col] / k)
+
+    return json.dumps(RETURN_VAL)
+
+
+#----------------------------------------------
 #Getting counts for each county for newest
 #----------------------------------------------
 @app.route("/resultater_part_mandater", methods = ['POST'])
@@ -245,7 +269,7 @@ def resultater_parti_national():
             partyKey[data[2]] = {'name': data[1], 'shares': 0.0}
 
         for iter in range(CURRENT_SIM):
-            QUERY = text("SELECT Party, Share FROM Resultater_parti_national WHERE SimuleringsID == " +  "'" + str(iter + 1) +"'")
+            QUERY = text("SELECT Party, Share FROM Resultater_parti_national WHERE SimuleringsID == " +  "'" + str(iter + 1) +"' ORDER BY SimuleringsID")
             SIM_DATA = db.engine.execute(QUERY)
             temp = deepcopy(partyKey)
             for res in SIM_DATA:
@@ -254,6 +278,33 @@ def resultater_parti_national():
 
         return json.dumps(sharesData)
 
+@app.route("/resultater_kaolisjon_national")
+def resultater_koalisjon_national():
+
+        CURRENT_SIM = db.engine.execute("select max(id) from Simulering").fetchone()[0]
+        FIRST_SIM = db.engine.execute("select min(id) from Simulering").fetchone()[0]
+        sharesData = []
+
+        #Getting the party name to find the relevant candidates
+        CURRENT_COALTION_NAMES = db.engine.execute("select Navn, Partier, ID from Koalisjon" )
+
+        coalitionKey = {}
+        for data in CURRENT_COALTION_NAMES:
+            coalitionKey[data[2]] = {'navn': data[0], 'partier': data[1],'share': 0.0,'mandater':0.0}
+
+        for iter in range(CURRENT_SIM):
+            QUERY = text("SELECT Koalisjon, Mandater, Share  FROM Resultater_koalisjon_nasjonal WHERE SimuleringsID == " +  "'" + str(iter + 1) +"' ORDER BY SimuleringsID")
+            SIM_DATA = db.engine.execute(QUERY)
+            temp = deepcopy(coalitionKey)
+            for res in SIM_DATA:
+                temp[res[0]]['share'] = res[2]
+                temp[res[0]]['mandater'] = res[1]
+            sharesData.append(temp)
+
+        return json.dumps(sharesData)
+
+
+        return "ok"
 #----------------------------------------------
 #Getting count for total for newest
 #----------------------------------------------
@@ -275,7 +326,6 @@ def simulation_dates():
 def simInfo():
     QUERY = text("SELECT Date from Info")
     res = db.engine.execute(QUERY)
-
     return "ok"
 
 

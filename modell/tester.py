@@ -39,11 +39,13 @@ cur.execute("DELETE FROM Resultater_parti_national;")
 conn.commit()
 cur.execute("DELETE FROM Info;")
 conn.commit()
+cur.execute("DELETE FROM Resultater_koalisjon_nasjonal;")
+conn.commit()
 
 #Date to start time series generation
-start_date = date(2024, 10, 1)
+start_date = date(2024, 11, 1)
 #Date to end time series generation
-end_date = date(2025, 2, 19)
+end_date = date(2025, 3,11)
 
 print(dato.year, dato.day, dato.month)
 

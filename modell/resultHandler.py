@@ -113,6 +113,7 @@ class ResultHandler:
 
         #Opening database
         self.openDB()
+
         #calculate the number of iterations for each number of seats
         tempDict2 = np.zeros((self._fylker, self._partier, 3))
         for party in range(self._partier):
@@ -183,14 +184,44 @@ class ResultHandler:
         #Opening database
         self.openDB()
 
-        #averages across parties
-        res = self._pollData.sum(axis=0) / self._iterasjoner
+        #averages across parties - shares
+        resShares = self._pollData.sum(axis=0) / self._iterasjoner
+
+        #Snitt per iterasjon
+        resSeats = self._results.sum(axis=0) / self._iterasjoner
+
+        #total per parti, summert over fylker
+        totals = resSeats[2].sum(axis=0)
+
+        #koalisjoner
+        q = "select Partier, ID from Koalisjon"
+        res = self._cursor.execute(q)
+        coalitions = {}
+        for r in res:
+            coalitions[r[1]] = {'parties':[], 'shares': 0.0, 'seats': 0.0}
+            coalitions[r[1]]['parties'] = r[0].split("-")
+            coalitions[r[1]]['parties'] = [int(x) for x in coalitions[r[1]]['parties']]
+
+        #Checking results
         for party in range(self._partier):
 
-            share = round(res[party] * 100,1)
+            #Partiresultater
+            share = round(resShares[party] * 100,1)
+            seats = round(totals[party],1)
+            query = "insert into Resultater_parti_national (id, SimuleringsID, Party, Share, Seats) values (?, ?, ?, ?, ?)"
+            data = (self.getId("Resultater_parti_national"), self._simuleringsID, party + 1, share, seats)
+            self._cursor.execute(query, data)
 
-            query = "insert into Resultater_parti_national (id, SimuleringsID, Party, Share) values (?, ?, ?, ?)"
-            data = (self.getId("Resultater_parti_national"), self._simuleringsID, party + 1, share)
+            for key, data in coalitions.items():
+                if party + 1 in data['parties']:
+                    data['seats'] += seats
+                    data['shares'] += share
+
+        #koliasjonsresultater
+        for key, data in coalitions.items():
+
+            query = "insert into Resultater_koalisjon_nasjonal (Koalisjon, SimuleringsID, Mandater, Share) values (?, ?, ? ,?)"
+            data = (key, self._simuleringsID, data['seats'], data['shares'])
             self._cursor.execute(query, data)
 
         self.commitDB()
@@ -227,11 +258,28 @@ if __name__ == "__main__":
     geoShareFile = ["data/fylkesfordeling2013.csv"]
     seatsFile = "data/mandater24.csv"
     pollDatabase = "data/poll/db/Valg_db.db"
-    uncertaintyFile = ""
-    resultsDatabase = "data/databaser/mainDB_TEST.db"
+    uncertaintyFile = "data/usikkerhet.csv"
+    resultsDatabase = "data/databaser/mainDB_TEST-kopi.db"
     dato = datetime.datetime.now()
 
-    simuleringsmodell = Valgsimulering(geoShareFile, seatsFile, pollDatabase, uncertaintyFile, dato, 100)
-    resultshandler = ResultHandler(resultsDatabase,simuleringsmodell.run(),dato)
+    #delete data
+    conn = sqlite3.connect(resultsDatabase)
+    cur = conn.cursor()
+    cur.execute("DELETE FROM Simulering;")
+    conn.commit()
+    cur.execute("DELETE FROM Resultater_parti;")
+    conn.commit()
+    cur.execute("DELETE FROM Resultater_kandidat;")
+    conn.commit()
+    cur.execute("DELETE FROM Resultater_parti_national;")
+    conn.commit()
+    cur.execute("DELETE FROM Info;")
+    conn.commit()
+    cur.execute("DELETE FROM Resultater_koalisjon_nasjonal;")
+    conn.commit()
+
+    simuleringsmodell = Valgsimulering(geoShareFile, seatsFile, pollDatabase, uncertaintyFile, dato, 1000)
+    resultshandler = ResultHandler(resultsDatabase, simuleringsmodell.run(), dato)
+    resultshandler.addPolls(simuleringsmodell.returnPolls())
 
     resultshandler.run()
