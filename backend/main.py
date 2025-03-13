@@ -218,8 +218,6 @@ def resultater_part_mandater_prob():
 
         return json.dumps(RETURN_VAL)
 
-
-
 @app.route("/getCandidateId", methods = ['POST'])
 def get_candidate_id():
 
@@ -304,7 +302,6 @@ def resultater_koalisjon_national():
         return json.dumps(sharesData)
 
 
-        return "ok"
 #----------------------------------------------
 #Getting count for total for newest
 #----------------------------------------------
@@ -325,9 +322,8 @@ def simulation_dates():
 @app.route("/simInfo")
 def simInfo():
     QUERY = text("SELECT Date from Info")
-    res = db.engine.execute(QUERY)
-    return "ok"
-
+    res = db.engine.execute(QUERY).fetchone()[0]
+    return res
 
 
 if __name__ == "__main__":

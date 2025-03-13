@@ -45,9 +45,10 @@ conn.commit()
 #Date to start time series generation
 start_date = date(2024, 11, 1)
 #Date to end time series generation
-end_date = date(2025, 3,11)
-
-print(dato.year, dato.day, dato.month)
+end_date = date(2025, 3,13)
+#Adding info
+cur.execute("INSERT INTO Info (Date) VALUES (" + str(start_date) +  ")")
+conn.commit()
 
 for dato in daterange(start_date, end_date):
 

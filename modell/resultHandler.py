@@ -164,8 +164,12 @@ class ResultHandler:
 
                     #Tar bare med positive sannsynligheter
                     if m > 0:
-                        q = "insert into Resultater_kandidat (id, SimuleringsID, KandidatID, Parti, Fylke, Prob_direkte, Prob_utjevning, Prob_total) values (?,?,?,?,?,?,?,?);"
-                        data = (self.getId("Resultater_kandidat"), self._simuleringsID, m, party + 1, fylke + 1,100 -p_distrikt, 100-p_utjevning, 100-p_total)
+                        q = "insert into Resultater_kandidat (id, SimuleringsID, KandidatID, Parti, Fylke, Prob_direkte, Prob_utjevning, Prob_total, Margin) values (?,?,?,?,?,?,?,?,?);"
+
+                        margin = round(((1-float(p_total)/100.0)*float(p_total)/100.0)*100,0)
+
+                        data = (self.getId("Resultater_kandidat"), self._simuleringsID, m, party + 1, fylke + 1,100 -p_distrikt, 100-p_utjevning, 100-p_total, margin)
+
                         self._cursor.execute(q, data)
 
                     p_distrikt += round(tempDict[m][0] / self._iterasjoner * 100, 1)
@@ -178,6 +182,7 @@ class ResultHandler:
 
     def resultater_kandidat(self):
         pass
+
 
     def resultater_snitt_nasjonalt(self):
 
