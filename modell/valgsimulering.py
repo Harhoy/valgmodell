@@ -140,6 +140,6 @@ if __name__ == "__main__":
     uncertaintyFile = "data/usikkerhet.csv"
     dato = datetime.datetime.now()
 
-    v = Valgsimulering(geoShareFile, seatsFile, pollDatabase, uncertaintyFile, dato, 20)
+    v = Valgsimulering(geoShareFile, seatsFile, pollDatabase, uncertaintyFile, dato, 1)
     v.run()
     #print(v.returnResults())

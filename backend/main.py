@@ -6,6 +6,20 @@ import json
 import sqlite3
 from copy import deepcopy
 
+
+'''
+def clamp(x):
+  return max(0, min(x, 255))
+
+"#{0:02x}{1:02x}{2:02x}".format(clamp(r), clamp(g), clamp(b))
+'''
+
+def rgb2hex(r,g,b):
+    return "#{:02x}{:02x}{:02x}".format(r,g,b)
+
+
+
+
 #Selve appen
 app = Flask(__name__)
 
@@ -38,6 +52,10 @@ def partier():
 @app.route("/")
 def index():
     return render_template("index.html")
+
+@app.route("/valgkart")
+def valgkart():
+    return render_template("valgkart.html")
 
 #----------------------------------------------
 #Getting district names and numbers
@@ -267,11 +285,12 @@ def resultater_parti_national():
             partyKey[data[2]] = {'name': data[1], 'shares': 0.0}
 
         for iter in range(CURRENT_SIM):
-            QUERY = text("SELECT Party, Share FROM Resultater_parti_national WHERE SimuleringsID == " +  "'" + str(iter + 1) +"' ORDER BY SimuleringsID")
+            QUERY = text("SELECT Party, Share, Seats FROM Resultater_parti_national WHERE SimuleringsID == " +  "'" + str(iter + 1) +"' ORDER BY SimuleringsID")
             SIM_DATA = db.engine.execute(QUERY)
             temp = deepcopy(partyKey)
             for res in SIM_DATA:
                 temp[res[0]]['shares'] = res[1]
+                temp[res[0]]['seats'] = res[2]
             sharesData.append(temp)
 
         return json.dumps(sharesData)

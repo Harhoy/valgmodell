@@ -45,7 +45,7 @@ conn.commit()
 #Date to start time series generation
 start_date = date(2024, 11, 1)
 #Date to end time series generation
-end_date = date(2025, 3,13)
+end_date = date(2025, 4, 3)
 #Adding info
 cur.execute("INSERT INTO Info (Date) VALUES (" + str(start_date) +  ")")
 conn.commit()
@@ -59,3 +59,9 @@ for dato in daterange(start_date, end_date):
     resultshandler = ResultHandler(resultsDatabase, simuleringsmodell.run(), dato)
     resultshandler.addPolls(simuleringsmodell.returnPolls())
     resultshandler.run()
+
+
+#Last, static simulation
+#simuleringsmodell = Valgsimulering(geoShareFile, seatsFile, pollDatabase, uncertaintyFile, dato, 1)
+#resultshandler = ResultHandler(resultsDatabase, simuleringsmodell.run(), dato)
+#resultHandler.runSingle()
