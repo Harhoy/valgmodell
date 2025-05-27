@@ -23,6 +23,9 @@ pollDatabase = "../dataGet/db/Valg_db.db"
 uncertaintyFile = "data/usikkerhet.csv"
 #Database to store results
 mainBase = "data/databaser/mainDB.db"
+#File with data on each constituency to find data from survey database
+constituency_file = "data/countylist.csv"
+
 resultsDatabase = "data/databaser/mainDB_TEST.db"
 dato = datetime.now()
 
@@ -43,9 +46,9 @@ cur.execute("DELETE FROM Resultater_koalisjon_nasjonal;")
 conn.commit()
 
 #Date to start time series generation
-start_date = date(2024, 11, 1)
+start_date = date(2025, 1, 1)
 #Date to end time series generation
-end_date = date(2025, 4, 9)
+end_date = date(2025, 5, 24)
 #Adding info
 cur.execute("INSERT INTO Info (Date) VALUES (" + str(start_date) +  ")")
 conn.commit()
@@ -55,9 +58,13 @@ for dato in daterange(start_date, end_date):
     dato = datetime.combine(dato, datetime.min.time())
 
     print("Kjorer modell for", dato)
-    simuleringsmodell = Valgsimulering(geoShareFile, seatsFile, pollDatabase, uncertaintyFile, dato, 1000)
+    # Setter opp simuleringsmodell for angitt dato
+    simuleringsmodell = Valgsimulering(geoShareFile, seatsFile, pollDatabase, uncertaintyFile, dato, constituency_file, 1000)
+    # Setter opp resulthandler som tar imot data fra simuleringsmodellen
     resultshandler = ResultHandler(resultsDatabase, simuleringsmodell.run(), dato)
+    # Legger til data fra vektede polls
     resultshandler.addPolls(simuleringsmodell.returnPolls())
+    # Kjorer ut resultater til DB
     resultshandler.run()
  
 

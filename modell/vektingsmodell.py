@@ -51,6 +51,8 @@ class VektingsmodellStandard:
 
         query = "SELECT AP, Frp, H, Krf, MDG, R, Sp, SV, V, A, Utvalgsstorrelse, Dato, Aar FROM Malinger WHERE Omraade == " +  "'" + self._omraade +  "'"
 
+
+
         self._results = []
         for row in self._conn.execute(query):
             temp = {}
@@ -154,16 +156,20 @@ class VektingsmodellStandard:
         self.getData()
         self.numpify()
 
-        if self._method == "Standard":
-            self.calcWeightedAveragesStandard()
+        if len(self._results) > 0:
 
-        return self._shareMarixWeighted, self._standardDeviationWeighted
+            if self._method == "Standard":
+                self.calcWeightedAveragesStandard()
+
+            return self._shareMarixWeighted, self._standardDeviationWeighted
+        
+        return None
 
 if __name__ == "__main__":
 
     date = datetime.datetime(2025, 2, 5, 18, 00)
 
-    vm = VektingsmodellStandard("../dataGet/db/Valg_db.db", date)
+    vm = VektingsmodellStandard("../dataGet/db/Valg_db.db", date,20,40, "Standard", "Rogaland" )
     #print(datetime.datetime.now())
     r = vm.run()
     print(r[0])

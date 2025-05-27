@@ -25,14 +25,23 @@ class ResultHandler:
 
         #Database where results are to be stored
         self._database = database
-        #4D numpy array with results
+
+        #4D numpy array with  main results
         #STRUCTURE [iterations, 3, fylker, partier]
-        self._results = results
+        self._results = results[0]
+
+        print(results.shape)
+
+        # Vector with sperregrense-data
+        self._sperregrenseMatrix = results[1]
+
         #Date of simulation
         self._date = date
 
+        # ID
         self._id = None
 
+        # Test mode
         self._testMode = testMode
 
         #Dimension
@@ -47,6 +56,9 @@ class ResultHandler:
 
     def addPolls(self, polls):
         self._pollData = polls
+    
+    def addSperregrense(self, sperregrenseMatrix):
+        self._sperregrenseMatrix = sperregrenseMatrix
 
     #-------------------------------
     #Database operations
@@ -183,6 +195,25 @@ class ResultHandler:
     def resultater_kandidat(self):
         pass
 
+    def sperregrense(self):
+        pass
+
+    def resultater_sperregrense(self):
+        #Opening database
+        self.openDB()        
+
+        # Sum over overations
+        self._sperregrense = self._sperregrenseMatrix.mean(axis= 0)
+
+        for party in range(self._partier):
+            prob = round(self._sperregrense[party - 1] * 100,1)
+            query = "insert into Sperregrense (SimuleringsID, Parti, Prob) values (?, ?, ?)"
+            data = (self._simuleringsID, party, prob)
+            self._cursor.execute(query, data) 
+
+        self.commitDB()
+        self.closeDB()
+
 
     def resultater_snitt_nasjonalt(self):
 
@@ -209,6 +240,8 @@ class ResultHandler:
 
         #Checking results
         for party in range(self._partier):
+
+            print(party)
 
             #Partiresultater
             share = round(resShares[party] * 100,1)

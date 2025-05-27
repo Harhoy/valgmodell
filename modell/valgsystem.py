@@ -43,6 +43,8 @@ class ValgSystemNorge:
         #Matrix of restkvotienter per fylke
         self._restKvotientMatrise = np.zeros((self._fylker, self._partier))
 
+        self._overSperregrense = np.zeros((self._partier))
+
         #Beregner antall distriktsmandater
     def calcDistriktsmandater(self):
         for i in range(self._fylker):
@@ -61,6 +63,9 @@ class ValgSystemNorge:
                 self._stemmer[:, party] = 0
                 #reducing the totalt number of seats ()
                 self._totaltMandater -= self._mandaterTildelt[:, party].sum()
+
+                # Havner under sperregrensen
+                self._overSperregrense[party] = 0
 
         #Redistribution of
         refordeling = True
@@ -136,3 +141,6 @@ class ValgSystemNorge:
 
     def getUtjevningsmandater(self):
         return self._utjevningsmandaterTildeltFylkesmatrise
+
+    def getOverSperrengrense(self):
+        return self._overSperregrense
