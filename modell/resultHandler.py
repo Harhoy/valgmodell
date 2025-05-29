@@ -30,8 +30,6 @@ class ResultHandler:
         #STRUCTURE [iterations, 3, fylker, partier]
         self._results = results[0]
 
-        print(results.shape)
-
         # Vector with sperregrense-data
         self._sperregrenseMatrix = results[1]
 
@@ -45,9 +43,9 @@ class ResultHandler:
         self._testMode = testMode
 
         #Dimension
-        self._fylker = results.shape[2]
-        self._partier = results.shape[3]
-        self._iterasjoner = results.shape[0]
+        self._fylker = results[0].shape[2]
+        self._partier = results[0].shape[3]
+        self._iterasjoner = results[0].shape[0]
 
         #Array storing different methods to be called
         self._analyses = []
@@ -79,7 +77,6 @@ class ResultHandler:
     def resetDB(self):
         tables = ['Resultater_parti','Resultater_kandidat','Simulering']
         for table in tables:
-            print(table)
             self._cursor.execute("DELETE FROM " + table + ";")
         self._conn.commit()
 
@@ -206,8 +203,8 @@ class ResultHandler:
         self._sperregrense = self._sperregrenseMatrix.mean(axis= 0)
 
         for party in range(self._partier):
-            prob = round(self._sperregrense[party - 1] * 100,1)
-            query = "insert into Sperregrense (SimuleringsID, Parti, Prob) values (?, ?, ?)"
+            prob = round(self._sperregrense[party] * 100,1)
+            query = "insert into Sperregrense (SimuleringsID, Parti, Prob_Sperr) values (?, ?, ?)"
             data = (self._simuleringsID, party, prob)
             self._cursor.execute(query, data) 
 
@@ -241,8 +238,6 @@ class ResultHandler:
         #Checking results
         for party in range(self._partier):
 
-            print(party)
-
             #Partiresultater
             share = round(resShares[party] * 100,1)
             seats = round(totals[party],1)
@@ -274,6 +269,7 @@ class ResultHandler:
         self._analyses.append(self.resultater_parti_counts)
         self._analyses.append(self.resultater_kandidat)
         self._analyses.append(self.resultater_snitt_nasjonalt)
+        self._analyses.append(self.resultater_sperregrense)
 
     #-------------------------------
     #Run the program

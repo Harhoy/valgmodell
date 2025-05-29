@@ -33,6 +33,8 @@ class Valgsimulering:
 
         self._sperregrense = 0.04
 
+        self._divisor = 1.4
+
 
         # Read data and populate data structures
         self.setup()
@@ -59,7 +61,7 @@ class Valgsimulering:
             self._geoShares.append(pd.read_csv(f, sep=';', header=None).values)
 
         #  --- #  of parties --- # 
-        self._parties = len(self._geoShares[0][0])
+        self._parties = len(self._geoShares[0][0]) - 1 # Minus sum
 
         #  --- #  of constituencies --- # 
         self._constituencies = len(self._geoShares[0])
@@ -68,15 +70,15 @@ class Valgsimulering:
         cf = pd.read_csv(self._constituency_file, sep =",")
         self._counties = cf.set_index('ID').T.to_dict()
         assert len(self._counties) == self._constituencies
-
-
         for county in self._counties:
             vm = VektingsmodellStandard(self._pollDatabase, self._dato, method = "Standard", omraade = self._counties[county]['Name'])
             self._counties[county]['Poll'] = vm.run()
             del vm
 
-
+    # -----------------------
     # Running the simulation
+    # -----------------------
+    
     def run(self):
 
         # Iterations, (direct, utjevning, total), counties, parties
@@ -93,7 +95,7 @@ class Valgsimulering:
             # Calclate vote shares
             self.calcVotes()
             # New system with poll numbers
-            vs = ValgSystemNorge(self._sharePartyConstituency, self._seats, self._sperregrense)
+            vs = ValgSystemNorge(self._sharePartyConstituency, self._seats, self._divisor, self._sperregrense)
             # Calculate direktemandater
             vs.calcDistriktsmandater()
             # Calculate utjevningsmandater
@@ -128,10 +130,10 @@ class Valgsimulering:
         geoshareMatrix = self._geoShares[geoShare]
 
         #  Total poll variance
-        var = [x ** 2 for x in  self._pollData[1][0]]
+        var = [x ** 2 for x in  self._pollData[1][0]] 
 
         #  National weight
-        w_national = sum(var) ** .5
+        w_national = sum(19 * var) ** .5
 
         # Just poll values
         if self._iterations == 1:
@@ -157,7 +159,7 @@ class Valgsimulering:
         #  ------------------------------------------------  
         #  REGIONAL SURVEYS
         #  ------------------------------------------------
-
+        
         self._voteSharesRegional = np.zeros((self._parties, self._constituencies))
 
         w_regional = {}
@@ -172,6 +174,7 @@ class Valgsimulering:
                 
                 #  There is a valid local poll
                 if pollingdata != None:
+                
                     var = [x ** 2 for x in pollingdata[1][0]]
  
                     w_regional[constituency] = sum(var) ** .5
@@ -180,7 +183,7 @@ class Valgsimulering:
                     if self._iterations == 1:
                         for party in range(self._parties):
                             self._voteSharesRegional[party][constituency] = pollingdata[0][party]
-
+                            
 
                     # Simulated values
                     else:
@@ -192,58 +195,83 @@ class Valgsimulering:
                         for party in range(self._parties):
 
                             # Polling error
-                            self._voteSharesRegional[party][constituency] = norm.ppf(random(), pollingdata[0][party], pollingdata[1][0][party])
-
+                            self._voteSharesRegional[party][constituency] = max(0,norm.ppf(random(), pollingdata[0][party], pollingdata[1][0][party]))
+                            
+                            
                             #  Total votes
                             sumInConstituency += self._voteSharesRegional[party][constituency]
 
                         # Normalize
                         for party in range(self._parties):
-                            self._voteSharesRegional[party][constituency] = self._voteSharesRegional[party][constituency] / sumInConstituency * (1-pollingdata[0][self._otherPartyIndex])
-                
+                            self._voteSharesRegional[party][constituency] = self._voteSharesRegional[party][constituency] / sumInConstituency * (1 - pollingdata[0][self._otherPartyIndex])
+                            #print(sumInConstituency)
+                            
                 #  There is no valid local poll, does not enter
                 else:
                     w_regional[constituency] = 10000
-            
+        
         #  ------------------------------------------------  
         #  TOTAL AVERAGE
         #  ------------------------------------------------
 
         #  Vote shares per constituency, per party - must be a more efficient way to do this ...
 
+        '''
+        This block calculates the average of national and regional surveys.
+        First, the regional and national values are calculated, normalized and adjusted for "other parties" in the previous block.
+        Then, depending on the mode (regional or national mode), the shares within each constituency is calculated, normalized 
+        and adjusted for other parties
+        '''
+
         #  Sum of national votes, broken down in each constituency
         self._constituency = np.zeros((self._constituencies))
         self._sharePartyConstituency = np.zeros((self._constituencies, self._parties))
-
         for party in range(self._parties):
             for constituency in range(self._constituencies):
-                self._sharePartyConstituency[constituency][party] += geoshareMatrix[constituency][party] * self._voteSharesNational[party]
 
-        #  Normalizing and calculating proper shares
-        for party in range(self._parties):
+                #If not regional mode, then only the national shares are used
+                if self._regional:
+                    self._constituency[constituency] += geoshareMatrix[constituency][party] * self._voteSharesNational[party]
+                else: 
+                    self._sharePartyConstituency[constituency][party] = geoshareMatrix[constituency][party] * self._voteSharesNational[party]
+
+        if self._regional:
+        
+            #  Normalizing and calculating proper shares - within each constituency
             for constituency in range(self._constituencies):
-                self._sharePartyConstituency[constituency][party] = geoshareMatrix[constituency][party] * self._voteSharesNational[party] / sum(self._sharePartyConstituency[constituency])
+                for party in range(self._parties):
+                    self._sharePartyConstituency[constituency][party] = geoshareMatrix[constituency][party] * self._voteSharesNational[party] / self._constituency[constituency]
 
-        #  Calculating the average
-        self._sharePartyConstituency_total = np.zeros((self._constituencies, self._parties))
-        for party in range(self._parties):
+            #  Calculating the total average
+            self._sharePartyConstituency_total = np.zeros((self._constituencies, self._parties))
+            self._constituency = np.zeros((self._constituencies))
+            for party in range(self._parties):
+                for constituency in range(self._constituencies):
+                    
+                    #  Share based on regional surveys
+                    regional = self._voteSharesRegional[party][constituency]
+
+                    #  Share based on national surveys
+                    national = self._sharePartyConstituency[constituency][party]
+
+                    #  Total average
+                    self._sharePartyConstituency_total[constituency][party] = 1.0 /  (1.0 / w_national + 1.0 / w_regional[constituency]) * (national / w_national + regional / w_regional[constituency])
+
+                    # Sum in constituency
+                    self._constituency[constituency] += self._sharePartyConstituency_total[constituency][party]
+
+        
+            # Normalizing once more
+            # Taking the constituency total and adjusting for share of national votes
+            # Remvoing the share of other parties (using the national average for now)
             for constituency in range(self._constituencies):
-                
-                #  Share based on regional surveys
-                regional = self._voteSharesRegional[party][constituency]
-
-                #  Share based on national surveys
-                national = self._sharePartyConstituency[constituency][party]
-
-                # print(party, constituency,"\n")
-                # print(f"Total (s): {0}, Regional (s): {regional}, National (s) : {national}, Regional (w) {w_regional[constituency]}, National :(w) {w_national}")
-
-                #  Total average
-                self._sharePartyConstituency_total[constituency][party] = 1.0 /  (1.0 / w_national + 1.0 / w_regional[constituency]) * (national / w_national + regional / w_regional[constituency])
-
-                total = self._sharePartyConstituency_total[constituency][party]
-
-
+                for party in range(self._parties):
+                    self._sharePartyConstituency_total[constituency][party] /= self._constituency[constituency] 
+                    self._sharePartyConstituency_total[constituency][party] *= geoshareMatrix[constituency][-1] * (1 - self._pollData[0][self._otherPartyIndex])
+                    
+                    
+            self._sharePartyConstituency = self._sharePartyConstituency_total
+        
 
     def returnResults(self):
         return self._resultMatrix
@@ -260,8 +288,16 @@ if __name__ == "__main__":
     constituency_file = "data/countylist.csv"
     dato = datetime.datetime.now()
 
-    print(dato)
+    
+
 
     v = Valgsimulering(geoShareFile, seatsFile, pollDatabase, uncertaintyFile, dato, constituency_file, 1)
     v.run()
+
+
+
     # print(v.returnResults())
+    #print(v.returnResults())
+    #print(np.mean(v._sperregrenseMatrix, axis=0))
+    #print(v._sperregrenseMatrix.shape)
+    #print(v._sperregrenseMatrix)

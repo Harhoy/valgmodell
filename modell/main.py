@@ -2,6 +2,7 @@
 import os
 import shutil
 import sqlite3
+import numpy as np
 
 from valgsimulering import Valgsimulering
 from datetime import date, timedelta, datetime
@@ -44,11 +45,13 @@ cur.execute("DELETE FROM Info;")
 conn.commit()
 cur.execute("DELETE FROM Resultater_koalisjon_nasjonal;")
 conn.commit()
+cur.execute("DELETE FROM Sperregrense;")
+conn.commit()
 
 #Date to start time series generation
-start_date = date(2025, 1, 1)
+start_date = date(2025, 5, 25)
 #Date to end time series generation
-end_date = date(2025, 5, 24)
+end_date = date(2025, 5, 29)
 #Adding info
 cur.execute("INSERT INTO Info (Date) VALUES (" + str(start_date) +  ")")
 conn.commit()
@@ -59,13 +62,15 @@ for dato in daterange(start_date, end_date):
 
     print("Kjorer modell for", dato)
     # Setter opp simuleringsmodell for angitt dato
-    simuleringsmodell = Valgsimulering(geoShareFile, seatsFile, pollDatabase, uncertaintyFile, dato, constituency_file, 1000)
+    simuleringsmodell = Valgsimulering(geoShareFile, seatsFile, pollDatabase, uncertaintyFile, dato, constituency_file, 100)
     # Setter opp resulthandler som tar imot data fra simuleringsmodellen
     resultshandler = ResultHandler(resultsDatabase, simuleringsmodell.run(), dato)
     # Legger til data fra vektede polls
     resultshandler.addPolls(simuleringsmodell.returnPolls())
     # Kjorer ut resultater til DB
     resultshandler.run()
+
+    print(np.mean(simuleringsmodell._sperregrenseMatrix, axis=0))
  
 
 

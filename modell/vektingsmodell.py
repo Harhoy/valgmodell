@@ -21,7 +21,8 @@ import datetime
 
 '''
 
-smallNumber = 0.00000001
+
+smallNumber = 0.0000000000000000001
 
 class VektingsmodellStandard:
 
@@ -99,12 +100,9 @@ class VektingsmodellStandard:
             dato2 = datetime.datetime(aar, int(dato[3]), int(dato[2]))
 
             #Date distance weight
-            self._dates[i] = self.dateWeight(dato1)
-
-            #print(self._shareMarix[i][0],self._dates[i])
+            self._dates[i] = self.dateWeight(dato2)
 
         #convert matrix to fractions
-
         self._shareMarix = self._shareMarix / 100.0
 
 
@@ -136,25 +134,35 @@ class VektingsmodellStandard:
         #Calculating intermediate matrix
         for i in range(len(self._weigthMatrix)):
             for j in range(len(self._weigthMatrix[0])):
-                self._weigthMatrix[i][j] = self._observations[i] / (self._shareMarix[i][j] * (1 - self._shareMarix[i][j])) * self._dates[i]
-
+                self._weigthMatrix[i][j] = self._dates[i] * self._observations[i] / (self._shareMarix[i][j] * (1 - self._shareMarix[i][j])) 
+        
+ 
         #Summing av updating to give the weights
-        columnSums = self._weigthMatrix.sum(axis=0)
+        columnSums = self._weigthMatrix.sum(axis=0)         
         for i in range(len(self._weigthMatrix[0])):
-            self._weigthMatrix[:, i] = self._weigthMatrix[:, i] / columnSums[i]
-            self._standardDeviationWeighted[i] = (1.0 / columnSums[i]) ** .5
+            if columnSums[i] > 1e-9:
+                self._weigthMatrix[:, i] = self._weigthMatrix[:, i] / columnSums[i]
+                self._standardDeviationWeighted[i] = (1.0 / columnSums[i]) ** .5
+            else:
+                self._weigthMatrix[:, i] = 0
+                self._standardDeviationWeighted[i] = 10000        
 
         #print(self._weigthMatrix)
 
         #Finally weighting the matrix shares
         self._shareMarixWeighted = np.multiply(self._shareMarix, self._weigthMatrix).sum(axis=0)
 
+        #print(self._shareMarixWeighted)
+
         #Transpose
         self._standardDeviationWeighted = self._standardDeviationWeighted.T
+
 
     def run(self):
         self.getData()
         self.numpify()
+
+        
 
         if len(self._results) > 0:
 
@@ -167,9 +175,9 @@ class VektingsmodellStandard:
 
 if __name__ == "__main__":
 
-    date = datetime.datetime(2025, 2, 5, 18, 00)
+    date = datetime.datetime(2025, 5, 29, 18, 00)
 
-    vm = VektingsmodellStandard("../dataGet/db/Valg_db.db", date,20,40, "Standard", "Rogaland" )
+    vm = VektingsmodellStandard("../dataGet/db/Valg_db.db", date, 20,40, "Standard", "Hedmark" )
     #print(datetime.datetime.now())
     r = vm.run()
     print(r[0])

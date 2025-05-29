@@ -11,8 +11,6 @@ class ValgSystemNorge:
         self._stemmer = stemmer
         self._stemmerCopy = deepcopy(stemmer)
 
-
-
         #Liste med fylker og navn
         self._fylker = len(self._stemmer)
 
@@ -43,7 +41,7 @@ class ValgSystemNorge:
         #Matrix of restkvotienter per fylke
         self._restKvotientMatrise = np.zeros((self._fylker, self._partier))
 
-        self._overSperregrense = np.zeros((self._partier))
+        self._overSperregrense = np.ones((self._partier))
 
         #Beregner antall distriktsmandater
     def calcDistriktsmandater(self):
@@ -59,6 +57,7 @@ class ValgSystemNorge:
         #remove votes below
         for party in range(self._partier):
             if self._stemmer[:, party].sum() < self._sperregrense:
+            
                 #Removing votes for party not participating in utjevningsmandater
                 self._stemmer[:, party] = 0
                 #reducing the totalt number of seats ()
