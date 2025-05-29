@@ -49,7 +49,7 @@ cur.execute("DELETE FROM Sperregrense;")
 conn.commit()
 
 #Date to start time series generation
-start_date = date(2025, 5, 25)
+start_date = date(2025, 5, 1)
 #Date to end time series generation
 end_date = date(2025, 5, 29)
 #Adding info
@@ -70,7 +70,29 @@ for dato in daterange(start_date, end_date):
     # Kjorer ut resultater til DB
     resultshandler.run()
 
-    print(np.mean(simuleringsmodell._sperregrenseMatrix, axis=0))
+# -------------------------------------------------
+# Kjorer modellen for ren polling uten simulering
+# -------------------------------------------------
+
+# < ---- NASJONALE OG REGIONALE MAALINGER ---- > 
+
+# Setter opp simuleringsmodell for angitt dato
+simuleringsmodell = Valgsimulering(geoShareFile, seatsFile, pollDatabase, uncertaintyFile, dato, constituency_file, 1)
+# Setter opp resulthandler som tar imot data fra simuleringsmodellen
+resultshandler = ResultHandler(resultsDatabase, simuleringsmodell.run(), dato)
+# Legger til data fra vektede polls
+resultshandler.addPolls(simuleringsmodell.returnPolls())
+# Kjorer ut resultater til DB
+resultshandler.run(-1)
  
+# < ---- NASJONALE  MAALINGER ---- >
 
-
+# Setter opp simuleringsmodell for angitt dato
+simuleringsmodell = Valgsimulering(geoShareFile, seatsFile, pollDatabase, uncertaintyFile, dato, constituency_file, 1)
+simuleringsmodell._regional = False
+# Setter opp resulthandler som tar imot data fra simuleringsmodellen
+resultshandler = ResultHandler(resultsDatabase, simuleringsmodell.run(), dato)
+# Legger til data fra vektede polls
+resultshandler.addPolls(simuleringsmodell.returnPolls())
+# Kjorer ut resultater til DB
+resultshandler.run(-2)

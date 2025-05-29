@@ -259,8 +259,7 @@ class Valgsimulering:
 
                     # Sum in constituency
                     self._constituency[constituency] += self._sharePartyConstituency_total[constituency][party]
-
-        
+                    
             # Normalizing once more
             # Taking the constituency total and adjusting for share of national votes
             # Remvoing the share of other parties (using the national average for now)

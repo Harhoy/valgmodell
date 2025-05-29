@@ -80,10 +80,16 @@ class ResultHandler:
             self._cursor.execute("DELETE FROM " + table + ";")
         self._conn.commit()
 
-    def insertSimulation(self):
+    def insertSimulation(self, otherId = None):
         self.openDB()
         query = "insert into Simulering (Dato, id, iterasjoner) VALUES (?, ?, ?);"
-        self._simuleringsID = self.getId("Simulering")
+
+        # Use standard numbering unless there is some signal value to be used for a special run
+        if otherId == None:
+            self._simuleringsID = self.getId("Simulering")
+        else:
+            self._simuleringsID = otherId
+            
         data = (self._date.strftime("%m/%d/%Y"), self._simuleringsID, self._iterasjoner)
         self._cursor.execute(query, data)
         self.commitDB()
@@ -276,11 +282,11 @@ class ResultHandler:
     #-------------------------------
 
 
-    def run(self):
+    def run(self, otherId = None):
 
         #KITS TO INCLUDE
         self.AKBasis()
-        self.insertSimulation()
+        self.insertSimulation(otherId)
 
         for a in self._analyses:
             a()
@@ -315,5 +321,4 @@ if __name__ == "__main__":
     simuleringsmodell = Valgsimulering(geoShareFile, seatsFile, pollDatabase, uncertaintyFile, dato, 1000)
     resultshandler = ResultHandler(resultsDatabase, simuleringsmodell.run(), dato)
     resultshandler.addPolls(simuleringsmodell.returnPolls())
-
     resultshandler.run()
