@@ -57,6 +57,10 @@ def index():
 def valgkart():
     return render_template("valgkart.html")
 
+@app.route("/metode")
+def metode():
+    return render_template("metode.html")
+
 #----------------------------------------------
 #Getting district names and numbers
 #----------------------------------------------
@@ -118,6 +122,9 @@ def resultater_part_mandater():
         #DISTRICT = request.args.get("district", default = 1, type = int)
         DISTRICT = request.json.get("district")
         RETURN_VAL = {}
+
+        SIM_ID = request.json.get("simID")
+        print(SIM_ID)
 
         QUERY = text("SELECT Mandater_distrikt, Mandater_utjevning, Mandater_total, Parti FROM Resultater_parti WHERE SimuleringsID == " +  "'" + str(CURRENT_SIM) +  "'" + " AND " + " Fylke == " +  "'" + str(DISTRICT) +  "'"  + " ORDER BY Parti")
 
@@ -294,6 +301,34 @@ def resultater_parti_national():
             sharesData.append(temp)
 
         return json.dumps(sharesData)
+
+
+@app.route("/resultater_national_specific", methods = ["POST"])
+def resultater_national_specific():
+
+    # Id of sim
+    simID = request.json.get("simID")
+
+    #Getting the party name to find the relevant candidates
+    CURRENT_PARTY_NAMES = db.engine.execute("select Name, Shortname, ID, R, G, B, LeftRight from Parties" )
+
+    partyKey = {}
+    sharesData = []
+        
+    for data in CURRENT_PARTY_NAMES:
+        partyKey[data[2]] = {'name': data[1], 'shares': 0.0, 'hex': rgb2hex(data[3], data[4], data[5]), "LR":  data[6]}
+    
+    QUERY = text("SELECT Party, Share, Seats FROM Resultater_parti_national WHERE SimuleringsID == " +  "'" + str(simID) +"' ORDER BY SimuleringsID")
+    SIM_DATA = db.engine.execute(QUERY)
+    for res in SIM_DATA:
+        partyKey[res[0]]['shares'] = res[1]
+        partyKey[res[0]]['seats'] = res[2]
+    sharesData.append(partyKey)
+
+
+    return json.dumps(sharesData)
+    
+    
 
 @app.route("/resultater_kaolisjon_national")
 def resultater_koalisjon_national():

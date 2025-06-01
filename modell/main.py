@@ -15,7 +15,7 @@ def daterange(start_date, end_date):
         yield start_date + timedelta(n)
 
 #List of matrices with distribution of votes per party over counties
-geoShareFile = ["data/fylkesfordeling2021.csv"]
+geoShareFile = ["data/fylkesfordeling2017.csv"]
 #Seats per county
 seatsFile = "data/mandater24.csv"
 #Database with polls
@@ -49,7 +49,7 @@ cur.execute("DELETE FROM Sperregrense;")
 conn.commit()
 
 #Date to start time series generation
-start_date = date(2025, 5, 1)
+start_date = date(2025, 5, 28)
 #Date to end time series generation
 end_date = date(2025, 5, 29)
 #Adding info
@@ -62,7 +62,7 @@ for dato in daterange(start_date, end_date):
 
     print("Kjorer modell for", dato)
     # Setter opp simuleringsmodell for angitt dato
-    simuleringsmodell = Valgsimulering(geoShareFile, seatsFile, pollDatabase, uncertaintyFile, dato, constituency_file, 100)
+    simuleringsmodell = Valgsimulering(geoShareFile, seatsFile, pollDatabase, uncertaintyFile, dato, constituency_file, 1)
     # Setter opp resulthandler som tar imot data fra simuleringsmodellen
     resultshandler = ResultHandler(resultsDatabase, simuleringsmodell.run(), dato)
     # Legger til data fra vektede polls

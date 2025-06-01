@@ -26,7 +26,8 @@ window.addEventListener("load", () => {
   let resp = fetch(`/resultater_part_mandater`, {
     method: 'POST',
     body: JSON.stringify({
-      district: 2
+      district: 2,
+      simID: -100
     }),
     headers: {
       "Content-type": "application/json; charset=UTF-8"
@@ -71,6 +72,9 @@ window.addEventListener("load", () => {
         district.setAttribute("href","#");
         district.innerHTML = value;
         districtList.appendChild(district);
+
+        console.log(key, value);
+        
         district.addEventListener("click", function(e) {
 
           chooseDistrict.innerText = this.innerText;
@@ -187,7 +191,8 @@ async function updateSinglePartyCounts(district) {
   let resp = fetch(`/resultater_part_mandater`, {
     method: 'POST',
     body: JSON.stringify({
-      district: district
+      district: district,
+      simID: -100
     }),
     headers: {
       "Content-type": "application/json; charset=UTF-8"

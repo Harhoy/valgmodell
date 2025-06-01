@@ -3,27 +3,124 @@
 {% block body %}
 
 
-<div class="w3-row-padding w3-padding-64 w3-container">
-  <div class="w3-content">
-    <div class="w3-twothird">
+<div class="card m-3">
+  <div class="card-body">
+  <!-- Designers -->
+  <div class="w3-container" id="designers" style="margin-top:10px">
+    <h1 class="w3-xlarge w3-text-red"><b>Simulering av Stortingsvalg</b></h1>
+    <hr style="width:50px;border:5px solid red" class="w3-round">
+    <p>The best team in the world.</p>
+    <p>We are lorem ipsum consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure
+    dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum consectetur adipiscing elit, sed do eiusmod tempor
+    incididunt ut labore et quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+    </p>
+    <p><b>Our designers are thoughtfully chosen</b>:</p>
+  </div>
+  </div>
+  </div>
 
 
-      <h1> ENSEKSNI - VALGMODELL</h1>
+<div class="card m-3">
+  <div class="card-body">
+  <!-- Services -->
+  <div class="w3-container" id="services" style="margin-top:10px">
+    <h1 class="w3-xlarge w3-text-red"><b>Mest sannsylige Storting</b></h1>
+    <hr style="width:50px;border:5px solid red" class="w3-round">
+    <p>We are a interior design service that focus on what's best for your home and what's best for you!</p>
+    <p>Some text about our services - what we do and what we offer. We are lorem ipsum consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure
+    dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum consectetur adipiscing elit, sed do eiusmod tempor
+    incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+    </p>
 
-      <img src="static/img/storting.png" width= "80%" alt="Italian Trulli">
+  <div class="card m-3">
+    <div class="card-body margin-1">
+      <div id="canvasContainer">
+        <canvas id="myCanvas"></canvas>
+      </div>  
 
+      <div class="smallHeader"> Velg type prognose</div>
+      <div class="infoText"> "Nasjonal" prognose benytter kun målinger på nasjonalt nivå. </div>
+      <div class="infoText"> "Nasjonal & regional" prognose benytter  målinger på nasjonalt- og fylkesnivå. </div>
 
-      <h5 class="w3-padding-32">HVA ER DETTE?</h5>
-      <p class="w3-text-grey">Fritidsprosjekt for å lære mer om webutivkling og modellering av valg.</p>
-
-
-      <h5 class="w3-padding-32">HVA KAN DU SE?</h5>
-      <p class="w3-text-grey">Partienes estimerte oppslutning nasjonalt</p>
-      <p class="w3-text-grey">Estimert antall stortingplasser på ulike valgdistrikt over tid</p>
+      <button id="nasjonal-prognose" type="button" class="btn btn-secondary" >Nasjonal</button>
+      <button id="regional-prognose" type="button" class="btn btn-secondary">Regional & Nasjonal</button>
+    
+    </div>
+  </div>
+  
+  <div class="card m-3">
+    <div class="card-body margin-1">
+      <div class="table-responsive">
+        <table class="table table-hover table-striped-stiped thead-dark text-center" id="partyTable">
+        <tr>
+          <th>Parti</th>
+          <th>Mandater'</th>
+          <th>Stemmeandel (%)</th>
+        </tr>
+        </table>
+      </div>
 
     </div>
   </div>
-</div>
 
+    <div class="card m-3">
+    
+    <div class="card-body margin-1">
+      <div class="smallHeader"> Sum mandater</div>
+      <div class="table-responsive">
+        <table class="table table-hover table-striped-stiped thead-dark text-center" id="fylkesTableTotalt">
+        <tr>
+          <th>Parti</th>
+          <th>Mandater'</th>
+          <th>Stemmeandel (%)</th>
+        </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="card m-3">
+    <div class="card-body margin-1">
+      <div class="smallHeader"> Direkte mandater</div>
+      <div class="table-responsive">
+        <table class="table table-hover table-striped-stiped thead-dark text-center text-center" id="fylkesTableDirekte">
+        <tr>
+          <th>Parti</th>
+          <th>Mandater'</th>
+          <th>Stemmeandel (%)</th>
+        </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="card m-3">
+    <div class="card-body margin-1">
+     <div class="smallHeader"> Utjevningsmandater</div>
+      <div class="table-responsive">
+        <table class="table table-hover table-striped-stiped thead-dark text-center" id="fylkesTableUtjevning">
+        <tr>
+          <th>Parti</th>
+          <th>Mandater'</th>
+          <th>Stemmeandel (%)</th>
+        </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+
+
+
+    
+  </div>
+  </div>
+</div>
+  
+
+
+<script src="{{ url_for('static', filename='js/utils.js') }}"></script>
+<script src="{{ url_for('static', filename='js/valgkart.js') }}"></script>
+<script src="{{ url_for('static', filename='js/stortingsfigur.js') }}"></script>
 
 {% endblock %}

@@ -109,11 +109,11 @@ class Valgsimulering:
             self._resultMatrix[iter][2] = self._resultMatrix[iter][0] + self._resultMatrix[iter][1]
 
             self._sperregrenseMatrix[iter] = vs.getOverSperrengrense()
-            
-            self._resultsVoteShareNational[iter] = deepcopy(self._voteSharesNational)
 
-            # print(self._resultMatrix[0][0][0])
-            # print(self._pollData[0])
+            if self._regional:
+                self._resultsVoteShareNational[iter] = np.sum(self._sharePartyConstituency, axis=0)
+            else:
+                self._resultsVoteShareNational[iter] = deepcopy(self._voteSharesNational)
 
         return self._resultMatrix, self._sperregrenseMatrix
 
@@ -139,7 +139,8 @@ class Valgsimulering:
         if self._iterations == 1:
             for party in range(self._parties):
                 self._voteSharesNational[party] = self._pollData[0][party]
-
+                print(self._pollData[0][party])
+                
 
         # Simulated values
         else:
@@ -197,14 +198,12 @@ class Valgsimulering:
                             # Polling error
                             self._voteSharesRegional[party][constituency] = max(0,norm.ppf(random(), pollingdata[0][party], pollingdata[1][0][party]))
                             
-                            
                             #  Total votes
                             sumInConstituency += self._voteSharesRegional[party][constituency]
 
                         # Normalize
                         for party in range(self._parties):
-                            self._voteSharesRegional[party][constituency] = self._voteSharesRegional[party][constituency] / sumInConstituency * (1 - pollingdata[0][self._otherPartyIndex])
-                            #print(sumInConstituency)
+                            self._voteSharesRegional[party][constituency] = self._voteSharesRegional[party][constituency] / min(10,sumInConstituency) * (1 - pollingdata[0][self._otherPartyIndex])
                             
                 #  There is no valid local poll, does not enter
                 else:
@@ -256,21 +255,28 @@ class Valgsimulering:
 
                     #  Total average
                     self._sharePartyConstituency_total[constituency][party] = 1.0 /  (1.0 / w_national + 1.0 / w_regional[constituency]) * (national / w_national + regional / w_regional[constituency])
-
+                    
                     # Sum in constituency
                     self._constituency[constituency] += self._sharePartyConstituency_total[constituency][party]
+
+                    
+
                     
             # Normalizing once more
             # Taking the constituency total and adjusting for share of national votes
             # Remvoing the share of other parties (using the national average for now)
-            for constituency in range(self._constituencies):
-                for party in range(self._parties):
+            for party in range(self._parties):
+                for constituency in range(self._constituencies):
+                
+                    #print(constituency, party, self._sharePartyConstituency_total[constituency][party],geoshareMatrix[constituency][-1],self._pollData[0][self._otherPartyIndex],self._constituency[constituency])
+                    
                     self._sharePartyConstituency_total[constituency][party] /= self._constituency[constituency] 
                     self._sharePartyConstituency_total[constituency][party] *= geoshareMatrix[constituency][-1] * (1 - self._pollData[0][self._otherPartyIndex])
                     
                     
             self._sharePartyConstituency = self._sharePartyConstituency_total
-        
+
+            print(np.sum(self._sharePartyConstituency, axis = 0))
 
     def returnResults(self):
         return self._resultMatrix
@@ -300,3 +306,4 @@ if __name__ == "__main__":
     #print(np.mean(v._sperregrenseMatrix, axis=0))
     #print(v._sperregrenseMatrix.shape)
     #print(v._sperregrenseMatrix)
+

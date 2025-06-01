@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+
+<div class="card m-3">
+  <div class="card-body">
+    <!-- Designers -->
+    <div class="w3-container" id="designers" style="margin-top:10px">
+      <h1 class="w3-xlarge w3-text-red"><b>Simulering av Stortingsvalg</b></h1>
+      <hr style="width:50px;border:5px solid red" class="w3-round">
+      <p>The best team in the world.</p>
+
+      <p>
+
+</p>
+
+
+    <h1 class="w3-medium w3-text-red"><b>Simulering av Stortingsvalg</b></h1>
+    \begin{equation}
+      w_{ij}(t_i,N_i) = \frac{N_i}{\alpha_{ij} (1-\alpha_{ij}) d(t_i)}
+    \end{equation}
+
+    \begin{equation}
+      \hat w_{ij} = \frac{w_{ij}(t_i,N_i)}{\sum_i  w_{ij}(t_i,N_i)}
+    \end{equation}
+
+    \begin{equation}
+      \alpha_j = \sum_i \alpha_{ij}\hat w_{ij} 
+    \end{equation}
+
+    <h1 class="w3-medium w3-text-red"><b>Simulering av Stortingsvalg</b></h1>
+    \begin{equation}
+
+      \alpha_w = \frac{1}{1 / \sigma_R  + 1 / \sigma_N } \left( \frac{\alpha_R}{\sigma_R}+ \frac{\alpha_N}{\sigma_N} \right)
+
+    \end{equation}
+
+      \( \sigma_R = \sum_i \  {\sigma_{R,i}^{2}} \)
+
+      <p><b>Our designers are thoughtfully chosen</b>:</p>
+
+      <pre><code class="python">    
+      def dateWeight(self, date):
+        now = self._dateNow
+        diff = float((now - date).days)
+        if diff < 0:
+            return smallNumber
+        if diff < self._dateB:
+            if diff < self._dateA:
+                return 1
+            else:
+                return 1 - (diff - self._dateA) / (self._dateB - self._dateA)
+        return smallNumber
+        </code></pre>
+
+      <p><b>Our designers are thoughtfully chosen</b>:</p>
+      
+    </div>
+  </div>
+</div>
+
+
+  
+
+{% endblock %}

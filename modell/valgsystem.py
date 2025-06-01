@@ -8,7 +8,7 @@ class ValgSystemNorge:
     def __init__(self, stemmer, mandater, divisor = 1.4, sperregrense = 0.04):
 
         #Array sortert etter rekkefolgen i partier med antall stemmer per parti
-        self._stemmer = stemmer
+        self._stemmer = deepcopy(stemmer)
         self._stemmerCopy = deepcopy(stemmer)
 
         #Liste med fylker og navn

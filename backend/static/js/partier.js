@@ -170,8 +170,6 @@ async function getNationalShares() {
         })
       }
 
-      //console.log(dataseries);
-
       const myChart = new Chart("partyShare", {
           type: 'line',
           data: dataseries,
@@ -183,7 +181,7 @@ async function getNationalShares() {
                y: {
                  stacked: false,
                  min: 0,
-                 max: 30,
+                 max: 35,
                }
              }
            }
