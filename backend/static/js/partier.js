@@ -1,9 +1,71 @@
 
 
+window.addEventListener("load", () => {
+  getNationalShares();
+  getCoaltionResults();
+  setupSperregrense();
+});
+
+
 function getRGBA(Rval, Gval, Bval) {
   return "rgba(" + Rval + "," + Gval + "," + Bval + "," + "1.0)"
 }
 
+async function setupSperregrense() {
+
+  let data = await fetch('/partier_sperregrense', {
+    method: "GET",
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }).then(response => {
+    return response.json();
+  })
+
+  console.log(data);
+  
+      //Setter opp dataserier
+      let dataseries = {
+        labels: [],
+        datasets: []
+      }
+
+      for (const [partyName, partyData] of Object.entries(data)) {
+
+        dataseries.labels = partyData['dates'];
+        dataseries['datasets'].push({
+           label: partyName,
+           data: partyData['dataseries'],
+           fill: false,
+           backgroundColor: getRGBA(partyData['colors']['R'],partyData['colors']['G'],partyData['colors']['B']),
+           borderColor: getRGBA(partyData['colors']['R'],partyData['colors']['G'],partyData['colors']['B']),
+           borderWidth: 2,
+           tension: .1,
+           pointRadius: 1,
+        })
+        
+      }
+      
+      const myChart = new Chart("sperregrenseCanvas", {
+          type: 'line',
+          data: dataseries,
+          options: {
+             scales: {
+               x: {
+                 stacked: false,
+               },
+               y: {
+                 stacked: false,
+                 min: -2,
+                 max: 110,
+               }
+             }
+           }
+      });
+      
+    
+
+}
 
 //Datoer
 function getDatesList() {
@@ -101,11 +163,6 @@ async function getSimInfo() {
   return list;
 }
 
-window.addEventListener("load", () => {
-  getNationalShares();
-  getCoaltionResults();
-});
-
 
 async function getNationalShares() {
 
@@ -142,7 +199,6 @@ async function getNationalShares() {
       //Legger over i arrays til chart
       for (var i = 0; i < json.length; i++){
         for (var j = 0; j < Object.keys(parties).length; j ++ ){
-          //console.log(json[i][j+1]['shares']);
           data[j + 1].push(json[i][j+1]['shares']);
         }
         datesLables.push(i);
@@ -195,8 +251,6 @@ async function getCoaltionResults() {
   let coalitions = await getCoalitionList();
 
 
-  console.log(coalitions);
-
   //Datoer
   let dates = [];
   let simInfo = await getSimInfo();
@@ -218,6 +272,7 @@ async function getCoaltionResults() {
       let datesLables = [];
       let data = {};
       let k = 0
+      let r, g, b;
 
       //Setter opp array som skal fylles
       for (const [key, value] of Object.entries(coalitions)) {
@@ -227,7 +282,6 @@ async function getCoaltionResults() {
       //Legger over i arrays til chart
       for (var i = 0; i < json.length; i++){
         for (var j = 0; j < Object.keys(coalitions).length; j ++ ){
-          console.log(json[i][j+1]['navn']);
           data[json[i][j+1]['navn']].push(json[i][j+1]['mandater']);
         }
         datesLables.push(i);
@@ -244,12 +298,16 @@ async function getCoaltionResults() {
 
       for (const [key, value] of Object.entries(coalitions)) {
 
+        r = Math.floor(Math.random() * 255);
+        g = Math.floor(Math.random() * 255);
+        b = Math.floor(Math.random() * 255);
+
         dataseries['datasets'].push({
            label: key,
            data: data[key],
            fill: false,
-           backgroundColor: getRGBA(coalitions[key]['R'],coalitions[key]['G'],coalitions[key]['B']),
-           borderColor: getRGBA(coalitions[key]['R'],coalitions[key]['G'],coalitions[key]['B']),
+           backgroundColor: getRGBA(r,g,b),
+           borderColor: getRGBA(r,g,b),
            borderWidth: 2,
            tension: .1,
            pointRadius: 1,

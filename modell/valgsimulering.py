@@ -139,7 +139,7 @@ class Valgsimulering:
         if self._iterations == 1:
             for party in range(self._parties):
                 self._voteSharesNational[party] = self._pollData[0][party]
-                print(self._pollData[0][party])
+
                 
 
         # Simulated values
@@ -195,8 +195,8 @@ class Valgsimulering:
                         # Random draws
                         for party in range(self._parties):
 
-                            # Polling error
-                            self._voteSharesRegional[party][constituency] = max(0,norm.ppf(random(), pollingdata[0][party], pollingdata[1][0][party]))
+                            # Polling error (1-e9 to remove zero sum if SD is large due to no surveys)
+                            self._voteSharesRegional[party][constituency] = max(1e-9,norm.ppf(random(), pollingdata[0][party], pollingdata[1][0][party]))
                             
                             #  Total votes
                             sumInConstituency += self._voteSharesRegional[party][constituency]
@@ -204,7 +204,8 @@ class Valgsimulering:
                         # Normalize
                         for party in range(self._parties):
                             self._voteSharesRegional[party][constituency] = self._voteSharesRegional[party][constituency] / min(10,sumInConstituency) * (1 - pollingdata[0][self._otherPartyIndex])
-                            
+                        
+
                 #  There is no valid local poll, does not enter
                 else:
                     w_regional[constituency] = 10000
@@ -268,15 +269,12 @@ class Valgsimulering:
             for party in range(self._parties):
                 for constituency in range(self._constituencies):
                 
-                    #print(constituency, party, self._sharePartyConstituency_total[constituency][party],geoshareMatrix[constituency][-1],self._pollData[0][self._otherPartyIndex],self._constituency[constituency])
-                    
                     self._sharePartyConstituency_total[constituency][party] /= self._constituency[constituency] 
                     self._sharePartyConstituency_total[constituency][party] *= geoshareMatrix[constituency][-1] * (1 - self._pollData[0][self._otherPartyIndex])
                     
                     
             self._sharePartyConstituency = self._sharePartyConstituency_total
 
-            print(np.sum(self._sharePartyConstituency, axis = 0))
 
     def returnResults(self):
         return self._resultMatrix

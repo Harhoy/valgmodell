@@ -11,11 +11,11 @@ from resultHandler import ResultHandler
 #https://stackoverflow.com/questions/1060279/iterating-through-a-range-of-dates-in-python
 def daterange(start_date, end_date):
     days = int((end_date - start_date).days)
-    for n in range(days):
+    for n in range(1, days, 7):
         yield start_date + timedelta(n)
 
 #List of matrices with distribution of votes per party over counties
-geoShareFile = ["data/fylkesfordeling2017.csv"]
+geoShareFile = ["data/fylkesfordeling2021.csv"]
 #Seats per county
 seatsFile = "data/mandater24.csv"
 #Database with polls
@@ -49,7 +49,7 @@ cur.execute("DELETE FROM Sperregrense;")
 conn.commit()
 
 #Date to start time series generation
-start_date = date(2025, 5, 28)
+start_date = date(2024, 10, 1)
 #Date to end time series generation
 end_date = date(2025, 5, 29)
 #Adding info
@@ -62,7 +62,8 @@ for dato in daterange(start_date, end_date):
 
     print("Kjorer modell for", dato)
     # Setter opp simuleringsmodell for angitt dato
-    simuleringsmodell = Valgsimulering(geoShareFile, seatsFile, pollDatabase, uncertaintyFile, dato, constituency_file, 1)
+    simuleringsmodell = Valgsimulering(geoShareFile, seatsFile, pollDatabase, uncertaintyFile, dato, constituency_file, 1000)
+    #simuleringsmodell._regional = False
     # Setter opp resulthandler som tar imot data fra simuleringsmodellen
     resultshandler = ResultHandler(resultsDatabase, simuleringsmodell.run(), dato)
     # Legger til data fra vektede polls
@@ -79,11 +80,12 @@ for dato in daterange(start_date, end_date):
 # Setter opp simuleringsmodell for angitt dato
 simuleringsmodell = Valgsimulering(geoShareFile, seatsFile, pollDatabase, uncertaintyFile, dato, constituency_file, 1)
 # Setter opp resulthandler som tar imot data fra simuleringsmodellen
-resultshandler = ResultHandler(resultsDatabase, simuleringsmodell.run(), dato)
+resultshandler = ResultHandler(resultsDatabase, simuleringsmodell.run(), end_date)
 # Legger til data fra vektede polls
 resultshandler.addPolls(simuleringsmodell.returnPolls())
 # Kjorer ut resultater til DB
 resultshandler.run(-1)
+
  
 # < ---- NASJONALE  MAALINGER ---- >
 
@@ -91,8 +93,10 @@ resultshandler.run(-1)
 simuleringsmodell = Valgsimulering(geoShareFile, seatsFile, pollDatabase, uncertaintyFile, dato, constituency_file, 1)
 simuleringsmodell._regional = False
 # Setter opp resulthandler som tar imot data fra simuleringsmodellen
-resultshandler = ResultHandler(resultsDatabase, simuleringsmodell.run(), dato)
+resultshandler = ResultHandler(resultsDatabase, simuleringsmodell.run(), end_date)
 # Legger til data fra vektede polls
 resultshandler.addPolls(simuleringsmodell.returnPolls())
 # Kjorer ut resultater til DB
 resultshandler.run(-2)
+print(simuleringsmodell.returnPolls())
+

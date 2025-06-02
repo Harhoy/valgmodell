@@ -89,8 +89,11 @@ class ResultHandler:
             self._simuleringsID = self.getId("Simulering")
         else:
             self._simuleringsID = otherId
-            
-        data = (self._date.strftime("%m/%d/%Y"), self._simuleringsID, self._iterasjoner)
+
+        # Date instead of week
+        date = self._date#.strftime("%m/%d/%Y")
+        week = str(datetime.date(date.year, date.month, date.day).isocalendar()[1])     
+        data = (week, self._simuleringsID, self._iterasjoner)
         self._cursor.execute(query, data)
         self.commitDB()
         self.closeDB()
@@ -211,7 +214,7 @@ class ResultHandler:
         for party in range(self._partier):
             prob = round(self._sperregrense[party] * 100,1)
             query = "insert into Sperregrense (SimuleringsID, Parti, Prob_Sperr) values (?, ?, ?)"
-            data = (self._simuleringsID, party, prob)
+            data = (self._simuleringsID, party + 1, prob)
             self._cursor.execute(query, data) 
 
         self.commitDB()
@@ -272,6 +275,7 @@ class ResultHandler:
     #-------------------------------
 
     def AKBasis(self):
+    
         self._analyses.append(self.resultater_parti_counts)
         self._analyses.append(self.resultater_kandidat)
         self._analyses.append(self.resultater_snitt_nasjonalt)

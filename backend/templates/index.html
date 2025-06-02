@@ -9,12 +9,47 @@
   <div class="w3-container" id="designers" style="margin-top:10px">
     <h1 class="w3-xlarge w3-text-red"><b>Simulering av Stortingsvalg</b></h1>
     <hr style="width:50px;border:5px solid red" class="w3-round">
-    <p>The best team in the world.</p>
-    <p>We are lorem ipsum consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure
-    dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum consectetur adipiscing elit, sed do eiusmod tempor
-    incididunt ut labore et quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+    <p>Denne nettsiden er et hobbyprosjekt der målet er å lære mer om statistiske metoder for simulering av norske Stortingsvalg og webutvikling. 
+    Hovedformålet er å beregne et sannsynlig Storting, partienes størrelse, resultater per valgdistrikt og kandidat ut fra relativt grunnleggende 
+    simuleringsmetoder. 
+    Det tas forbehold metdode, inndata og bugs i programmeringen - resultatene er først og fremst et læringsverktøy, dernest et faktisk anslag på 
+    "hva som vil skje".
     </p>
-    <p><b>Our designers are thoughtfully chosen</b>:</p>
+
+    <p>
+    På siden finner du følgende
+
+    <ul>
+      <li> Hovedside: Resultater for landet under ett basert på siste prognose</li>
+      <li> Nasjonale resulater: Resultater for landet under som tidsserier tilbake i tid (viser utviklingen) </li>
+      <li> Fylkesvise resulater: Resultater for hvert enkelt fylke som tidsserier tilbake i tid (viser utviklingen), samt kandidater i fylket </li>
+      <li> Metode: Beskrivelse av metode og forutsetninger </li>
+    </ul>
+    </p>
+
+    <p>
+    Det er et stort antall forutsetninger som må gjøres for å kunne lage anslag på sammensetningen av Stortinget. Resultatene vil 
+    også variere en del etter hvilke forutsetninger man legger til grunn. Metodedelen forsøker å dokumentere så langt som mulig de valgene somg er gjort,
+    men kvantifiserer ikke alle effekter. 
+    </p>
+
+    <p>
+    Wedesignet er et template fra <a href="https://www.w3schools.com/w3css/w3css_templates.asp"> w3schools </a>
+    </p>
+
+    <p>
+    Kildekoden til modellen finnes her <a href="https://github.com/Harhoy/valgmodell"> her </a>
+    </p>
+
+      <p>
+    Kildekoden Stortingsfigurene finnes <a href="https://github.com/Harhoy/valgkart"> her </a>
+    </p>
+    <p>
+    All kode har åpne MIT-lisenser.
+    </p>
+
+    
+
   </div>
   </div>
   </div>
@@ -26,28 +61,46 @@
   <div class="w3-container" id="services" style="margin-top:10px">
     <h1 class="w3-xlarge w3-text-red"><b>Mest sannsylige Storting</b></h1>
     <hr style="width:50px;border:5px solid red" class="w3-round">
-    <p>We are a interior design service that focus on what's best for your home and what's best for you!</p>
-    <p>Some text about our services - what we do and what we offer. We are lorem ipsum consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure
-    dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum consectetur adipiscing elit, sed do eiusmod tempor
-    incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-    </p>
+    <p>Her vises beregnet Stortingssammensetning på bakgrunn av ulike forutsetninger og metoder. 
+    Satt litt på spissen vises dermed ulike "sannsylige Stortingssammensetninger". Det er imidlertid viktig å understreke
+    at det ikke kvantifiseres noen usikkerhet i denne presentasjonen. Følgelig vises bare ett anslag, og man må derfor ikke se på verdiene som en "sannhet". </p>
 
-  <div class="card m-3">
-    <div class="card-body margin-1">
-      <div id="canvasContainer">
-        <canvas id="myCanvas"></canvas>
-      </div>  
 
       <div class="smallHeader"> Velg type prognose</div>
-      <div class="infoText"> "Nasjonal" prognose benytter kun målinger på nasjonalt nivå. </div>
-      <div class="infoText"> "Nasjonal & regional" prognose benytter  målinger på nasjonalt- og fylkesnivå. </div>
-
+      <ul>
+        <li>"Nasjonal" prognose benytter kun målinger på nasjonalt nivå. </li>
+       <li>"Nasjonal & regional" prognose benytter  målinger på nasjonalt- og fylkesnivå.  </li>
+      </ul>
       <button id="nasjonal-prognose" type="button" class="btn btn-secondary" >Nasjonal</button>
       <button id="regional-prognose" type="button" class="btn btn-secondary">Regional & Nasjonal</button>
+      <p> </p>
+
+  <h1 class="w3-xlarge w3-text-red"><b>Stortinget i figurer</b></h1>
+  Resulatene viser ulike visualieringser av Stortingets sammensetning under forskjellige antagelser.
+  <div class="card m-3">
+
+    <div class="card-body margin-1">
+    
+       <h1 class="w3-large w3-text-red"><b>Stortinget inndelt i partier fra venstre til høyre</b></h1>
+      <div id="canvasContainer" class="canvasContainer">
+        <canvas id="partyCanvas"></canvas>
+      </div>  
+       <h1 class="w3-large w3-text-red"><b>Stortinget inndelt i hovedblokker</b></h1>
+      <div id="canvasContainer" class="canvasContainer">
+        <canvas id="hsCanvas"></canvas>
+      </div>  
+
+       <h1 class="w3-large w3-text-red"><b>Stortinget inndelt i dagens regjering (pluss støttepartier) og opposisjonen</b></h1>
+      <div id="canvasContainer" class="canvasContainer">
+        <canvas id="dagensCanvas"></canvas>
+      </div>  
     
     </div>
   </div>
-  
+
+  <h1 class="w3-xlarge w3-text-red"><b>Tabellresultater</b></h1>
+  Resulatene viser antall mandater totalt, samt distrikts- og utjevningsmandater under forutsetninger om prognose valgt ovenfor. 
+
   <div class="card m-3">
     <div class="card-body margin-1">
       <div class="table-responsive">

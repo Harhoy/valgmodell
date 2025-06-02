@@ -22,6 +22,16 @@ async function drawGraph(id) {
 
   let intialData = await get_storting(id);
   let parties = Array(Object.keys(intialData[0]).length);
+  let hs = Array(Object.keys(2).length);
+  let dagens = Array(Object.keys(3).length);
+
+
+  hs[0] = {'Name': "Venstresiden", 'Mandater': 0 , 'HEX': "#EE4B2B", 'shares': 0};
+  hs[1] = {'Name': "Høyresiden", 'Mandater': 0 , 'HEX': "#0000FF", 'shares': 0};
+
+  dagens[0] = {'Name': "Regjeringsgrunnlag", 'Mandater': 0 , 'HEX': "#ffa500", 'shares': 0};
+  dagens[1] = {'Name': "Opposisjonen", 'Mandater': 0 , 'HEX': "#808080", 'shares': 0};
+  
   let data, lr, name, hex, share, seats;
   for (let i = 0; i < Object.keys(intialData[0]).length; i++) {
     data = intialData[0][i+1];
@@ -30,10 +40,30 @@ async function drawGraph(id) {
     name = data['name'];
     seats = data['seats'];
     shares = data['shares'];
-    parties[lr] = {'Name': name, 'Mandater': seats , 'HEX': hex, 'shares': shares.toFixed(1)};
+    parties[lr] = {'Name': name, 'Mandater': seats , 'HEX': hex, 'shares': shares.toFixed(1)};    
+
+    if (lr < 5) {
+      hs[0]['Mandater'] += seats;
+      hs[0]['shares'] += shares;
+    } else {
+      hs[1]['Mandater'] += seats;
+      hs[1]['shares'] += shares;    
+    }
+
+    if (name === "A" || name === "SV" || name === "SP") {
+      dagens[0]['Mandater'] += seats;
+      dagens[0]['shares'] += shares;
+    } else {
+      dagens[1]['Mandater'] += seats;
+      dagens[1]['shares'] += shares;
+    }
   }
 
-  updateGraph(parties);
+     
+
+  updateGraph(parties, "partyCanvas");
+  updateGraph(hs, "hsCanvas");
+  updateGraph(dagens, "dagensCanvas");
   updatePartyTable(parties);
   updateFylkesTable(parties, id);
 
@@ -115,15 +145,16 @@ async function get_storting(id) {
   return storting;
 }
 
-async function updateGraph(parties) {
+async function updateGraph(parties, name) {
 
   //canvas
-  let canvas = document.getElementById("myCanvas");
+  let canvas = document.getElementById(name);
   let ctx = canvas.getContext("2d");
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  let newGraph = new ElectoralChart("myCanvas", parties);
+  let newGraph = new ElectoralChart(name, parties, true);
   
 }
+
 
 async function updatePartyTable(parties) {
     let table = document.getElementById("partyTable");
@@ -229,3 +260,4 @@ async function getDistricts() {
   let list = await getDistrictList();
   return list;
 }
+

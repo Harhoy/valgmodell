@@ -5,6 +5,7 @@ from datetime import date
 import json
 import sqlite3
 from copy import deepcopy
+import datetime
 
 
 '''
@@ -31,7 +32,7 @@ db = SQLAlchemy(app) #ny database og sender inn appen her
 
 @app.route("/getSimInfo")
 def get_sim_info():
-    QUERY = text("SELECT Dato, id FROM Simulering")
+    QUERY = text("SELECT Dato, id FROM Simulering WHERE id > 0")
     resp = []
     for r in db.engine.execute(QUERY):
         resp.append({'id': r[1], 'date':r[0]})
@@ -124,9 +125,11 @@ def resultater_part_mandater():
         RETURN_VAL = {}
 
         SIM_ID = request.json.get("simID")
-        print(SIM_ID)
 
-        QUERY = text("SELECT Mandater_distrikt, Mandater_utjevning, Mandater_total, Parti FROM Resultater_parti WHERE SimuleringsID == " +  "'" + str(CURRENT_SIM) +  "'" + " AND " + " Fylke == " +  "'" + str(DISTRICT) +  "'"  + " ORDER BY Parti")
+        if SIM_ID < -99:
+            SIM_ID = CURRENT_SIM
+
+        QUERY = text("SELECT Mandater_distrikt, Mandater_utjevning, Mandater_total, Parti FROM Resultater_parti WHERE SimuleringsID == " +  "'" + str(SIM_ID) +  "'" + " AND " + " Fylke == " +  "'" + str(DISTRICT) +  "'"  + " ORDER BY Parti")
 
         result = db.engine.execute(QUERY)
         for row in result:
@@ -146,7 +149,7 @@ def resultater_part_mandater_time_series():
         DISTRICT = request.json.get("district")
         #DISTRICT = request.args.get("district", default = 1, type = int)
 
-        SIM_QUERY = text("SELECT ID, Dato from Simulering ORDER BY ID")
+        SIM_QUERY = text("SELECT ID, Dato from Simulering WHERE ID > 0 ORDER BY ID")
         result_simuleringer = db.engine.execute(SIM_QUERY)
         RETURN_VAL = []
 
@@ -156,7 +159,11 @@ def resultater_part_mandater_time_series():
             QUERY = text("SELECT Mandater_distrikt, Mandater_utjevning, Mandater_total, Parti FROM Resultater_parti WHERE SimuleringsID == " +  "'" + str(CURRENT_SIM) +  "'" + " AND " + " Fylke == " +  "'" + str(DISTRICT) +  "'"  + " ORDER BY Parti")
 
             result = db.engine.execute(QUERY)
-            RETURN_VAL_LOCAL = {'SimuleringsID': CURRENT_SIM, 'Data': {} , 'Dato': rowA[1]}
+            date = rowA[1]#.split("/")
+            #date  = str(datetime.date(int(date[2]), int(date[0]), int(date[1])).isocalendar()[1]) 
+
+        
+            RETURN_VAL_LOCAL = {'SimuleringsID': CURRENT_SIM, 'Data': {} , 'Dato': date}
             for rowB in result:
                 distrikt = rowB[0]
                 utjevning = rowB[1]
@@ -192,7 +199,6 @@ def resultater_part_mandater_hist():
             RETURN_VAL[parti] = {'distrikt': distrikt, 'utjevning': utjevning, 'total': total}
 
         return json.dumps(RETURN_VAL)
-
 
 
 #----------------------------------------------
@@ -280,8 +286,8 @@ def get_candidate_id():
 @app.route("/resultater_parti_national")
 def resultater_parti_national():
 
-        CURRENT_SIM = db.engine.execute("select max(id) from Simulering").fetchone()[0]
-        FIRST_SIM = db.engine.execute("select min(id) from Simulering").fetchone()[0]
+        CURRENT_SIM = db.engine.execute("select max(id) from Simulering WHERE id > 0").fetchone()[0]
+        FIRST_SIM = db.engine.execute("select min(id) from Simulering WHERE id > 0").fetchone()[0]
         sharesData = []
 
         #Getting the party name to find the relevant candidates
@@ -299,6 +305,7 @@ def resultater_parti_national():
                 temp[res[0]]['shares'] = res[1]
                 temp[res[0]]['seats'] = res[2]
             sharesData.append(temp)
+
 
         return json.dumps(sharesData)
 
@@ -324,7 +331,6 @@ def resultater_national_specific():
         partyKey[res[0]]['shares'] = res[1]
         partyKey[res[0]]['seats'] = res[2]
     sharesData.append(partyKey)
-
 
     return json.dumps(sharesData)
     
@@ -356,6 +362,54 @@ def resultater_koalisjon_national():
         return json.dumps(sharesData)
 
 
+@app.route('/partier_sperregrense')
+def partier_sperregrense():
+
+
+    CURRENT_PARTY_NAMES = db.engine.execute("select Name, Shortname, ID, R, G, B, LeftRight from Parties" )
+    parties = [r[1] for r in CURRENT_PARTY_NAMES]
+    returnData = dict.fromkeys(parties)
+
+    # Need to make a fresh copy in memory
+    for p in returnData.keys():
+        returnData[p] = {'dates': [], 'dataseries':[], 'colors': None}
+
+    QUERY = '''
+    SELECT 
+    Sperregrense.SimuleringsID, Sperregrense.Parti, Sperregrense.Prob_Sperr, Simulering.Dato, 
+    Parties.Shortname, Parties.R, Parties.G, Parties.B
+    FROM Sperregrense 
+    Join Simulering ON Simulering.id = Sperregrense.SimuleringsID
+    Join Parties ON Sperregrense.Parti = Parties.ID
+    WHERE Sperregrense.SimuleringsID > 0
+    ORDER BY Simulering.Dato
+    '''
+
+    DATA = db.engine.execute(text(QUERY))
+    result = [{'simID':row[0], 'PartyID':row[1],'date':row[3],'party_name':row[4],'prob_sperr':row[2], 'R':row[5], 'G':row[6], 'B':row[7]} for row in DATA]
+
+    print(returnData['H'])
+
+    for i in range(len(result)):
+
+        print(result[i])
+    
+        name = result[i]['party_name']
+        returnData[name]['dataseries'].append(result[i]['prob_sperr'])
+
+        print(len(returnData[name]['dataseries']))
+        print(name, returnData[name])
+
+        if result[i]['date'] not in returnData[name]['dates']:
+            returnData[name]['dates'].append(result[i]['date'])
+
+        if returnData[name]['colors'] == None:
+            returnData[name]['colors']= { 'R': result[i]['R'],'G': result[i]['G'],'B': result[i]['B']}
+    
+    return json.dumps(returnData)
+    
+
+
 #----------------------------------------------
 #Getting count for total for newest
 #----------------------------------------------
@@ -365,7 +419,7 @@ def resultater_part_mandater_total():
 
 @app.route("/simulation_dates")
 def simulation_dates():
-    QUERY = text("SELECT id, Dato from Simulering")
+    QUERY = text("SELECT id, Dato from Simulering WHERE id > 0")
     RES = db.engine.execute(QUERY)
     returnVal = []
     for r in RES:

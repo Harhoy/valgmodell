@@ -6,6 +6,8 @@ ElectionChart
 
 please import "utils.js" in HTML before this script
 
+update 01.05.2025: Added names and counts on the side (optional)
+
 */
 
 
@@ -22,12 +24,18 @@ var HORIZ_WEIGHT = 0.000000000001;
 
 class ElectoralChart {
 
-  constructor(canvasName, parties = null) {
+  constructor(canvasName, parties = null, nameplate = false) {
+
+    // Parties names on side
+    this.nameplate = nameplate;
 
     //canvas
     this.canvas = document.getElementById(canvasName);
-    this.canvas.width = "600";
     this.canvas.height = "350";
+    this.canvas.width = "600";
+    if (this.nameplate) {
+      this.canvas.width = "800";
+    }
 
     //Context to in which the illustrations are drawn
     this.ctx = this.canvas.getContext("2d");
@@ -68,7 +76,12 @@ class ElectoralChart {
     this.rows = [];
 
     //Root node (for drawing other noded and debug purposes)
-    this.rootNode = new Node(this, this.canvas.width / 2, this.canvas.width * 0.5);
+    if (this.nameplate) {
+      this.rootNode = new Node(this, this.canvas.width * 0.40, this.canvas.height * 0.9);
+    } else {
+      this.rootNode = new Node(this, this.canvas.width * 0.5, this.canvas.height * 0.9);
+    }
+    
     this.rootNode.color = "red";
 
     //Nodes sorted from left to right (by angle to root node)
@@ -76,6 +89,10 @@ class ElectoralChart {
 
     //Setup
     this.adapt();
+
+    if (this.nameplate) {
+      this.drawNames();
+    }
 
   }
 
@@ -127,6 +144,32 @@ class ElectoralChart {
       sum += (mean -  this.gapList[i]) ** 2;
     }
     return (sum / this.gapList.length ** 2) ** 0.5;
+  }
+
+  drawNames() {
+
+    // Font and size
+    this.ctx.font = "12px Arial";
+    
+    let node;
+
+    // Hard coded based on the Norwegian Parliament
+    let baseX = this.canvas.width * 0.8;
+    let baseY = this.canvas.height * 0.2;
+    let incrementY = 30;
+    let incrementX = 20;
+    
+    // List of all nodes
+    this.namedNodes = [];
+
+    
+    for (let i = 0; i < this.parties.length; i++) {
+      node = new Node(this, baseX , baseY + incrementY * i, -1);
+      node.color =  this.parties[i]['HEX'];
+      this.ctx.fillStyle =  this.parties[i]['HEX'];
+      this.ctx.fillText(this.parties[i]['Name'] + " " + this.parties[i]['Mandater'], baseX + incrementX, baseY + incrementY * i);
+      node.draw();      
+    }
   }
 
   //Finds the radial distance giving the smallest variation in gaps used in each layer
