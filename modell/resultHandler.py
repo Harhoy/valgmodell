@@ -50,7 +50,7 @@ class ResultHandler:
         #Array storing different methods to be called
         self._analyses = []
 
-        self._maxBlocks = 60
+        self._maxBlocks = 10
 
     def addPolls(self, polls):
         self._pollData = polls
