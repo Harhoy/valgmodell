@@ -409,6 +409,10 @@ def partier_sperregrense():
     return json.dumps(returnData)
     
 
+@app.route("/simulation_ids")
+def simulation_ids():
+    QUERY = text("SELECT max(id) from Simulering")
+    return str(db.engine.execute(QUERY).fetchone()[0])
 
 #----------------------------------------------
 #Getting count for total for newest

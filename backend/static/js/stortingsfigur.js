@@ -1,5 +1,7 @@
 
 
+const DECIMALS = 1;
+
 window.addEventListener('load', async () => {
 
   // Initial graph
@@ -16,15 +18,53 @@ window.addEventListener('load', async () => {
     drawGraph(-1);
   });
 
+  let latest_sim_id = await getLatest_sim_id();
+  button = document.getElementById("nasjonal-prognose-simulert");
+  button.addEventListener('click', function() {
+    drawGraph(latest_sim_id);
+  });
+
 });
 
 async function drawGraph(id) {
+
+  // ---------------------------------------------------
+  // Inits
+  // ---------------------------------------------------
 
   let intialData = await get_storting(id);
   let parties = Array(Object.keys(intialData[0]).length);
   let hs = Array(Object.keys(2).length);
   let dagens = Array(Object.keys(3).length);
+  let data, lr, name, hex, share, seats;
 
+
+  // ---------------------------------------------------
+  // Adjusting seats if the do not correspond to sum
+  // ---------------------------------------------------
+  
+  // Inits
+  let seats_correted = new Array(Object.keys(intialData[0]).length);
+  let totalSeats = 0;
+
+  // Get seats
+  for (let i = 0; i < Object.keys(intialData[0]).length; i++) {
+    seats_correted[i] = intialData[0][i+1]['seats'];
+    totalSeats += seats_correted[i];
+  }
+
+  // Apply correction
+  seats_correted = largest_remainder(seats_correted, totalSeats);
+
+  // Change data
+  for (let i = 0; i < Object.keys(intialData[0]).length; i++) {
+    intialData[0][i+1]['seats'] = seats_correted[i];
+  }
+
+
+  // ---------------------------------------------------
+  // Define other vizualizations
+  // ---------------------------------------------------
 
   hs[0] = {'Name': "Venstresiden", 'Mandater': 0 , 'HEX': "#EE4B2B", 'shares': 0};
   hs[1] = {'Name': "Høyresiden", 'Mandater': 0 , 'HEX': "#0000FF", 'shares': 0};
@@ -32,7 +72,7 @@ async function drawGraph(id) {
   dagens[0] = {'Name': "Regjeringsgrunnlag", 'Mandater': 0 , 'HEX': "#ffa500", 'shares': 0};
   dagens[1] = {'Name': "Opposisjonen", 'Mandater': 0 , 'HEX': "#808080", 'shares': 0};
   
-  let data, lr, name, hex, share, seats;
+
   for (let i = 0; i < Object.keys(intialData[0]).length; i++) {
     data = intialData[0][i+1];
     lr = data['LR'];
@@ -70,7 +110,6 @@ async function drawGraph(id) {
   
 }
 
-
 async function updateFylkesTable(parties, id) {
 
   // Regional og nasjonal
@@ -107,12 +146,9 @@ async function updateFylkesTable(parties, id) {
         let p = parties[party]['Name'];
         let total = parseFloat(result[fylke-1][p]['Utjevningsmandater']) + parseFloat(result[fylke-1][p]['Distriktsmandater']);
 
-        
-        console.log(p + " " + total);
-
-        htmlTableTotal += "<td>" + total + '</td>'
-        htmlTableDirekte += "<td>" + parseFloat(result[fylke-1][p]['Distriktsmandater']) + '</td>'
-        htmlTableUtjevning += "<td>" + parseFloat(result[fylke-1][p]['Utjevningsmandater']) + '</td>'
+        htmlTableTotal += "<td>" + total.toFixed(1) + '</td>'
+        htmlTableDirekte += "<td>" + parseFloat(result[fylke-1][p]['Distriktsmandater']).toFixed(1) + '</td>'
+        htmlTableUtjevning += "<td>" + parseFloat(result[fylke-1][p]['Utjevningsmandater']).toFixed(1) + '</td>'
       }
       htmlTableTotal += "</tr>";
       htmlTableDirekte += "</tr>";
@@ -261,3 +297,13 @@ async function getDistricts() {
   return list;
 }
 
+async function getLatest_sim_id() {
+
+  return fetch('/simulation_ids', {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }).then(response => {
+    return response.json();
+  })
+}

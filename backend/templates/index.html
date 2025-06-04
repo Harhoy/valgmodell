@@ -67,12 +67,16 @@
 
 
       <div class="smallHeader"> Velg type prognose</div>
+
+      <button id="nasjonal-prognose-simulert" type="button" class="btn btn-secondary" >Nasjonal (simulering)</button>
+      <button id="nasjonal-prognose" type="button" class="btn btn-secondary" >Nasjonal (statisk)</button>
+      <button id="regional-prognose" type="button" class="btn btn-secondary">Regional & Nasjonal (statisk)</button>
+    
       <ul>
         <li>"Nasjonal" prognose benytter kun målinger på nasjonalt nivå. </li>
        <li>"Nasjonal & regional" prognose benytter  målinger på nasjonalt- og fylkesnivå.  </li>
       </ul>
-      <button id="nasjonal-prognose" type="button" class="btn btn-secondary" >Nasjonal</button>
-      <button id="regional-prognose" type="button" class="btn btn-secondary">Regional & Nasjonal</button>
+
       <p> </p>
 
   <h1 class="w3-xlarge w3-text-red"><b>Stortinget i figurer</b></h1>
@@ -171,9 +175,10 @@
 </div>
   
 
-
+<script src="{{ url_for('static', filename='js/largest_remainder.js') }}"></script>
 <script src="{{ url_for('static', filename='js/utils.js') }}"></script>
 <script src="{{ url_for('static', filename='js/valgkart.js') }}"></script>
 <script src="{{ url_for('static', filename='js/stortingsfigur.js') }}"></script>
+
 
 {% endblock %}

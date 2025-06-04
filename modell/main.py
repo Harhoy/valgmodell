@@ -51,7 +51,7 @@ conn.commit()
 #Date to start time series generation
 start_date = date(2024, 10, 1)
 #Date to end time series generation
-end_date = date(2025, 5, 29)
+end_date = date(2025, 6, 4)
 #Adding info
 cur.execute("INSERT INTO Info (Date) VALUES (" + str(start_date) +  ")")
 conn.commit()
@@ -63,7 +63,7 @@ for dato in daterange(start_date, end_date):
     print("Kjorer modell for", dato)
     # Setter opp simuleringsmodell for angitt dato
     simuleringsmodell = Valgsimulering(geoShareFile, seatsFile, pollDatabase, uncertaintyFile, dato, constituency_file, 1000)
-    #simuleringsmodell._regional = False
+    simuleringsmodell._regional = False
     # Setter opp resulthandler som tar imot data fra simuleringsmodellen
     resultshandler = ResultHandler(resultsDatabase, simuleringsmodell.run(), dato)
     # Legger til data fra vektede polls
