@@ -271,7 +271,7 @@ def get_candidate_id():
     response['candidatePartyName'] = db.engine.execute("select Name from Parties WHERE Shortname == " +  "'" + unicode(response['party']) +"'" ).fetchone()[0]
 
     # ---- Getting probabilities ----
-    QUERY_PROB = text("SELECT Prob_total FROM Resultater_kandidat WHERE KandidatID == " +  "'" + str(response['candidateID']) +  "'" + " AND " + " Fylke == " +  "'" + str(response['candidateFylkeID']) +  "'"  + " AND " + " Parti == " +  "'" + str(response['candidatePartyID']) +  "'"  + " ORDER BY SimuleringsID")
+    QUERY_PROB = text("SELECT Prob_total FROM Resultater_kandidat WHERE KandidatID == " +  "'" + str(response['candidateID']) +  "'" + " AND " + " Fylke == " +  "'" + str(response['candidateFylkeID']) +  "'"  + " AND " + " Parti == " +  "'" + str(response['candidatePartyID']) +  "'" +  " AND " + " SimuleringsID > 0 "  + " ORDER BY SimuleringsID")
 
     probabilities = []
     result = db.engine.execute(QUERY_PROB)
@@ -348,15 +348,16 @@ def resultater_koalisjon_national():
 
         coalitionKey = {}
         for data in CURRENT_COALTION_NAMES:
-            coalitionKey[data[2]] = {'navn': data[0], 'partier': data[1],'share': 0.0,'mandater':0.0}
+            coalitionKey[data[2]] = {'navn': data[0], 'partier': data[1],'share': 0.0,'mandater':0.0, 'prob': None}
 
         for iter in range(CURRENT_SIM):
-            QUERY = text("SELECT Koalisjon, Mandater, Share  FROM Resultater_koalisjon_nasjonal WHERE SimuleringsID == " +  "'" + str(iter + 1) +"' ORDER BY SimuleringsID")
+            QUERY = text("SELECT Koalisjon, Mandater, Share, flertall_prob FROM Resultater_koalisjon_nasjonal WHERE SimuleringsID == " +  "'" + str(iter + 1) +"' ORDER BY SimuleringsID")
             SIM_DATA = db.engine.execute(QUERY)
             temp = deepcopy(coalitionKey)
             for res in SIM_DATA:
                 temp[res[0]]['share'] = res[2]
                 temp[res[0]]['mandater'] = res[1]
+                temp[res[0]]['prob'] = res[3] * 100
             sharesData.append(temp)
 
         return json.dumps(sharesData)
@@ -382,7 +383,7 @@ def partier_sperregrense():
     Join Simulering ON Simulering.id = Sperregrense.SimuleringsID
     Join Parties ON Sperregrense.Parti = Parties.ID
     WHERE Sperregrense.SimuleringsID > 0
-    ORDER BY Simulering.Dato
+    ORDER BY Simulering.id
     '''
 
     DATA = db.engine.execute(text(QUERY))
@@ -391,8 +392,6 @@ def partier_sperregrense():
     print(returnData['H'])
 
     for i in range(len(result)):
-
-        print(result[i])
     
         name = result[i]['party_name']
         returnData[name]['dataseries'].append(result[i]['prob_sperr'])

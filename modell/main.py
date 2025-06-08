@@ -51,7 +51,7 @@ conn.commit()
 #Date to start time series generation
 start_date = date(2024, 10, 1)
 #Date to end time series generation
-end_date = date(2025, 6, 4)
+end_date = date(2025, 6, 9)
 #Adding info
 cur.execute("INSERT INTO Info (Date) VALUES (" + str(start_date) +  ")")
 conn.commit()
@@ -70,6 +70,8 @@ for dato in daterange(start_date, end_date):
     resultshandler.addPolls(simuleringsmodell.returnPolls())
     # Kjorer ut resultater til DB
     resultshandler.run()
+
+    print(np.mean(simuleringsmodell.returnPolls(), axis=0))
 
 # -------------------------------------------------
 # Kjorer modellen for ren polling uten simulering
@@ -99,4 +101,5 @@ resultshandler.addPolls(simuleringsmodell.returnPolls())
 # Kjorer ut resultater til DB
 resultshandler.run(-2)
 print(simuleringsmodell.returnPolls())
+print(dato)
 

@@ -18,6 +18,65 @@ Define different analysis kits (AK's) by a method an list of functions to be per
 #------------------------------
 '''
 
+def greaterThan(x, t):
+    if x >= t:
+        return 1
+    return 0
+
+def lessThan(x, t):
+    if x <= t:
+        return 1
+    return 0
+
+gt_vec = np.vectorize(greaterThan)
+lt_vec = np.vectorize(lessThan)
+
+class CoalitionHandler:
+
+    def __init__(self, data, coalitions):
+
+        # Dimensions [iterations, 1, fylker, partier] (results from handler, but only total seats)
+        self._data = data[:, 2, :, :]
+
+        # Dimensions [parties, coalitions], 0-1 matrix
+        self._coalitions = coalitions
+
+        #self.calcProbs()
+        
+    def calcProbs(self, threshold = 85, axis = 0, gt = True):
+        
+        """
+        Calculate results for one coalition.
+        Args: 
+            axis (int): set to 0 for national values and 1 for county-specific lists
+            threshold (int): number of simulations AT or (ABOVE - gt = True) (BELOW - gt = False) given number
+
+        Returns:
+            list of str: probabilities for coaltions over threshold        
+        """
+
+        stats = {}
+        returns = []
+        sum_seats = np.sum(self._data, axis=1).T        
+        for i in range(len(self._coalitions[0])):
+
+            # Get N copies of coalition i
+            c_temp = np.tile(self._coalitions[:, i], (len(sum_seats[0]),1)).T
+
+            # Find sum over iterations and sum to totals (iterations, coaltion sums)
+            c_temp = np.sum(np.multiply(sum_seats, c_temp), axis=0)
+
+            # Stats
+            stats[str(i+1)] = {'mean': np.mean(c_temp), 'median': np.percentile(c_temp, 50), '10p': np.percentile(c_temp, 90), '90p': np.percentile(c_temp, 10)}
+
+            # Mean of 0-1 matrix 
+            if gt:
+                returns.append(np.mean(gt_vec(c_temp, threshold)))
+            else:
+                returns.append(np.mean(lt_vec(c_temp, threshold)))                
+
+        return returns, stats
+
 
 class ResultHandler:
 
@@ -50,7 +109,7 @@ class ResultHandler:
         #Array storing different methods to be called
         self._analyses = []
 
-        self._maxBlocks = 10
+        self._maxBlocks = 60
 
     def addPolls(self, polls):
         self._pollData = polls
@@ -235,14 +294,25 @@ class ResultHandler:
         #total per parti, summert over fylker
         totals = resSeats[2].sum(axis=0)
 
+        
+        q = "SELECT COUNT(*) FROM Koalisjon"
+        coalitions_matrix = np.zeros((self._partier, self._cursor.execute(q).fetchone()[0]))
+        
         #koalisjoner
         q = "select Partier, ID from Koalisjon"
         res = self._cursor.execute(q)
         coalitions = {}
         for r in res:
+ 
             coalitions[r[1]] = {'parties':[], 'shares': 0.0, 'seats': 0.0}
             coalitions[r[1]]['parties'] = r[0].split("-")
             coalitions[r[1]]['parties'] = [int(x) for x in coalitions[r[1]]['parties']]
+
+            for i in range(len(coalitions[r[1]]['parties'])):
+                p = coalitions[r[1]]['parties'][i] - 1
+                c = r[1] - 1                
+                coalitions_matrix[p][c] = 1
+
 
         #Checking results
         for party in range(self._partier):
@@ -259,12 +329,15 @@ class ResultHandler:
                     data['seats'] += seats
                     data['shares'] += share
 
+        ca = CoalitionHandler(self._results, coalitions_matrix)
+        probs, stats = ca.calcProbs()
         #koliasjonsresultater
         for key, data in coalitions.items():
-
-            query = "insert into Resultater_koalisjon_nasjonal (Koalisjon, SimuleringsID, Mandater, Share) values (?, ?, ? ,?)"
-            data = (key, self._simuleringsID, data['seats'], data['shares'])
+            query = "insert into Resultater_koalisjon_nasjonal (Koalisjon, SimuleringsID, Mandater, Share, flertall_prob, Mean_seats, Median_seats, p90_seats, p10_seats) values (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+            data = (key, self._simuleringsID, data['seats'], data['shares'], probs[key - 1], stats[str(key)]['mean'], stats[str(key)]['median'], stats[str(key)]['10p'],stats[str(key)]['90p'] )
             self._cursor.execute(query, data)
+
+
 
         self.commitDB()
         self.closeDB()

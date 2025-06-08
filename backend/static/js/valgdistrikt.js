@@ -72,8 +72,6 @@ window.addEventListener("load", () => {
         district.setAttribute("href","#");
         district.innerHTML = value;
         districtList.appendChild(district);
-
-        console.log(key, value);
         
         district.addEventListener("click", function(e) {
 
@@ -323,9 +321,6 @@ async function updateSinglePartyCountsTimeSeries(district) {
          pointRadius: 1,
       })
     }
-
-    console.log(dataseries);
-
 
     const myChart = new Chart("mandaterPerPartiOverTid", {
         type: 'line',

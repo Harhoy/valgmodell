@@ -21,8 +21,7 @@ async function setupSperregrense() {
   }).then(response => {
     return response.json();
   })
-
-  console.log(data);
+  
   
       //Setter opp dataserier
       let dataseries = {
@@ -39,9 +38,7 @@ async function setupSperregrense() {
            fill: false,
            backgroundColor: getRGBA(partyData['colors']['R'],partyData['colors']['G'],partyData['colors']['B']),
            borderColor: getRGBA(partyData['colors']['R'],partyData['colors']['G'],partyData['colors']['B']),
-           borderWidth: 2,
            tension: .1,
-           pointRadius: 1,
         })
         
       }
@@ -220,9 +217,7 @@ async function getNationalShares() {
            fill: false,
            backgroundColor: getRGBA(parties[key]['R'],parties[key]['G'],parties[key]['B']),
            borderColor: getRGBA(parties[key]['R'],parties[key]['G'],parties[key]['B']),
-           borderWidth: 2,
            tension: .1,
-           pointRadius: 1,
         })
       }
 
@@ -271,18 +266,21 @@ async function getCoaltionResults() {
       let labels = [];
       let datesLables = [];
       let data = {};
+      let data_prob = {};
       let k = 0
       let r, g, b;
 
       //Setter opp array som skal fylles
       for (const [key, value] of Object.entries(coalitions)) {
         data[key] = [];
+        data_prob[key] = [];
       }
 
       //Legger over i arrays til chart
       for (var i = 0; i < json.length; i++){
         for (var j = 0; j < Object.keys(coalitions).length; j ++ ){
           data[json[i][j+1]['navn']].push(json[i][j+1]['mandater']);
+          data_prob[json[i][j+1]['navn']].push(json[i][j+1]['prob']);
         }
         datesLables.push(i);
         labels.push(k);
@@ -292,6 +290,11 @@ async function getCoaltionResults() {
 
       //Setter opp dataserier
       let dataseries = {
+        labels: dates,
+        datasets: []
+      }
+
+      let dataseries_prob = {
         labels: dates,
         datasets: []
       }
@@ -308,10 +311,18 @@ async function getCoaltionResults() {
            fill: false,
            backgroundColor: getRGBA(r,g,b),
            borderColor: getRGBA(r,g,b),
-           borderWidth: 2,
            tension: .1,
-           pointRadius: 1,
         })
+
+        dataseries_prob['datasets'].push({
+           label: key,
+           data: data_prob[key],
+           fill: false,
+           backgroundColor: getRGBA(r,g,b),
+           borderColor: getRGBA(r,g,b),
+           tension: .1,
+        })
+        
       }
 
       //console.log(dataseries);
@@ -332,6 +343,27 @@ async function getCoaltionResults() {
              }
            }
       });
+
+
+      //coalitionSannsynlighet
+      const myChartProb = new Chart("coalitionSannsynlighet", {
+          type: 'line',
+          data: dataseries_prob,
+          options: {
+             scales: {
+               x: {
+                 stacked: false,
+               },
+               y: {
+                 stacked: false,
+                 min: 0,
+                 max: 100,
+               }
+             }
+           }
+      });
+
+    
 
     });
 
