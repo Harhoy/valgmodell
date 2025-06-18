@@ -226,7 +226,7 @@ def resultater_part_mandater_prob():
             partyKey[data[2]] = data[1]
 
 
-            QUERY_CAND = text("SELECT navn, alder, valgdistrikt, partinavn, kandidatnr from Kandidater_21 WHERE partikode  == " +  "'" + partyKey[data[2]] +  "'" + " AND " + " valgdistrikt == " +  "'" + CURRENT_DISTRICT_NAME +  "'"  + "")
+            QUERY_CAND = text("SELECT navn, alder, valgdistrikt, partinavn, kandidatnr from Kandidater_25 WHERE partikode  == " +  "'" + partyKey[data[2]] +  "'" + " AND " + " valgdistrikt == " +  "'" + CURRENT_DISTRICT_NAME +  "'"  + "")
 
             candidate_results = db.engine.execute(QUERY_CAND)
             candiates[partyKey[data[2]]] = {}
@@ -256,7 +256,7 @@ def get_candidate_id():
     name = request.json.get("Name")
 
     #getting candidate number
-    QUERY_ID = text("SELECT valgdistrikt, kandidatnr, partikode FROM Kandidater_21 WHERE navn == " +  "'" + unicode(name) +  "'")
+    QUERY_ID = text("SELECT valgdistrikt, kandidatnr, partikode FROM Kandidater_25 WHERE navn == " +  "'" + unicode(name) +  "'")
     result = db.engine.execute(QUERY_ID).fetchone()
 
     #informaton on the candidate
