@@ -51,7 +51,7 @@ conn.commit()
 #Date to start time series generation
 start_date = date(2024, 10, 2)
 #Date to end time series generation
-end_date = date(2025, 6, 20)
+end_date = date(2025, 6, 27)
 #Adding info
 cur.execute("INSERT INTO Info (Date) VALUES (" + str(start_date) +  ")")
 conn.commit()

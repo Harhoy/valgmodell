@@ -2,6 +2,7 @@ import numpy as np
 import sqlite3
 from valgsimulering import Valgsimulering
 import datetime
+from math import log
 
 
 '''
@@ -243,7 +244,7 @@ class ResultHandler:
                     if m > 0:
                         q = "insert into Resultater_kandidat (id, SimuleringsID, KandidatID, Parti, Fylke, Prob_direkte, Prob_utjevning, Prob_total, Margin) values (?,?,?,?,?,?,?,?,?);"
 
-                        margin = round(((1-float(p_total)/100.0)*float(p_total)/100.0)*100,0)
+                        margin = (1-float(p_total)/100.0)*float(p_total)/100.0
 
                         data = (self.getId("Resultater_kandidat"), self._simuleringsID, m, party + 1, fylke + 1,100 -p_distrikt, 100-p_utjevning, 100-p_total, margin)
 
