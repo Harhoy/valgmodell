@@ -2,6 +2,7 @@
 import numpy as np
 import pandas as pd
 from random import random
+from random import randrange
 from vektingsmodell import VektingsmodellStandard
 from valgsystem import ValgSystemNorge
 from scipy.stats import norm
@@ -9,6 +10,7 @@ from tqdm import tqdm
 import datetime
 from random import random
 from copy import deepcopy
+from utils import *
 
 class Valgsimulering:
 
@@ -35,7 +37,6 @@ class Valgsimulering:
 
         self._divisor = 1.4
 
-
         # Read data and populate data structures
         self.setup()
 
@@ -57,8 +58,12 @@ class Valgsimulering:
 
         #  --- Geo shares --- # 
         self._geoShares = []
+        integers = []
         for f in self._geoShareFiles:
-            self._geoShares.append(pd.read_csv(f, sep=';', header=None).values)
+            self._geoShares.append(pd.read_csv(f['file'], sep=';', header=None).values)
+            integers.append({'prop': f['prop'], 'val': len(self._geoShares) - 1})
+        self._geoShareList = randomIntegerList(integers)
+
 
         #  --- #  of parties --- # 
         self._parties = len(self._geoShares[0][0]) - 1 # Minus sum
@@ -93,7 +98,7 @@ class Valgsimulering:
         for iter in tqdm(range(self._iterations)):
 
             # Calclate vote shares
-            self.calcVotes()
+            self.calcVotes(self._geoShareList[randrange(len(self._geoShareList))])
             # New system with poll numbers
             vs = ValgSystemNorge(self._sharePartyConstituency, self._seats, self._divisor, self._sperregrense)
             # Calculate direktemandater
@@ -284,7 +289,12 @@ class Valgsimulering:
 
 if __name__ == "__main__":
 
-    geoShareFile = ["data/fylkesfordeling2013.csv"]
+
+    geoShareFile = [{'file': "data/fylkesfordeling2013.csv", 'prop': 0.1},
+                {'file': "data/fylkesfordeling2017.csv", 'prop': 0.3},
+                {'file': "data/fylkesfordeling2021.csv", 'prop': 0.6}]
+
+    #geoShareFile = ["data/fylkesfordeling2013.csv","data/fylkesfordeling2017.csv","data/fylkesfordeling2021.csv"]
     seatsFile = "data/mandater24.csv"
     pollDatabase = "../dataGet/db/Valg_db.db"
     uncertaintyFile = "data/usikkerhet.csv"
@@ -294,7 +304,7 @@ if __name__ == "__main__":
     
 
 
-    v = Valgsimulering(geoShareFile, seatsFile, pollDatabase, uncertaintyFile, dato, constituency_file, 1)
+    v = Valgsimulering(geoShareFile, seatsFile, pollDatabase, uncertaintyFile, dato, constituency_file, 10)
     v.run()
 
 

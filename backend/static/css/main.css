@@ -1,4 +1,13 @@
 
+.leftAlgin {
+
+  display: flex;
+  justify-content: left;
+
+}
+
+
+
 .candidateInfo {
   display: grid;
   grid-auto-columns: auto auto auto;

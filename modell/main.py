@@ -14,8 +14,11 @@ def daterange(start_date, end_date):
     for n in range(1, days, 7):
         yield start_date + timedelta(n)
 
-#List of matrices with distribution of votes per party over counties
-geoShareFile = ["data/fylkesfordeling2021.csv"]
+#List of matrices with distribution of votes per party over counties and proportions used
+geoShareFile = [{'file': "data/fylkesfordeling2013.csv", 'prop': 0.05},
+                {'file': "data/fylkesfordeling2017.csv", 'prop': 0.35},
+                {'file': "data/fylkesfordeling2021.csv", 'prop': 0.60}]
+
 #Seats per county
 seatsFile = "data/mandater24.csv"
 #Database with polls
@@ -49,9 +52,9 @@ cur.execute("DELETE FROM Sperregrense;")
 conn.commit()
 
 #Date to start time series generation
-start_date = date(2024, 10, 2)
+start_date = date(2024, 10, 4)
 #Date to end time series generation
-end_date = date(2025, 6, 27)
+end_date = date(2025, 7, 10)
 #Adding info
 cur.execute("INSERT INTO Info (Date) VALUES (" + str(start_date) +  ")")
 conn.commit()

@@ -47,6 +47,8 @@ async function setupSperregrense() {
           type: 'line',
           data: dataseries,
           options: {
+             responsive: true,
+             maintainAspectRatio: false,
              scales: {
                x: {
                  stacked: false,
@@ -225,6 +227,8 @@ async function getNationalShares() {
           type: 'line',
           data: dataseries,
           options: {
+             responsive: true,
+             maintainAspectRatio: false,
              scales: {
                x: {
                  stacked: false,
@@ -331,6 +335,8 @@ async function getCoaltionResults() {
           type: 'line',
           data: dataseries,
           options: {
+             responsive: true,
+             maintainAspectRatio: false,
              scales: {
                x: {
                  stacked: false,
@@ -350,6 +356,8 @@ async function getCoaltionResults() {
           type: 'line',
           data: dataseries_prob,
           options: {
+             responsive: true,
+             maintainAspectRatio: false,
              scales: {
                x: {
                  stacked: false,
