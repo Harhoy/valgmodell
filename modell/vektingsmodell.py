@@ -131,11 +131,14 @@ class VektingsmodellStandard:
 
         self._standardDeviationWeighted =  np.zeros((len(self._partiNavnNummer),1))
 
+        self._totalObs = 0
+
         #Calculating intermediate matrix
         for i in range(len(self._weigthMatrix)):
             for j in range(len(self._weigthMatrix[0])):
                 self._weigthMatrix[i][j] = self._dates[i] * self._observations[i] / (self._shareMarix[i][j] * (1 - self._shareMarix[i][j])) 
-        
+
+                self._totalObs += self._dates[i] * self._observations[i]
  
         #Summing av updating to give the weights
         columnSums = self._weigthMatrix.sum(axis=0)         
@@ -169,7 +172,7 @@ class VektingsmodellStandard:
             if self._method == "Standard":
                 self.calcWeightedAveragesStandard()
 
-            return self._shareMarixWeighted, self._standardDeviationWeighted
+            return self._shareMarixWeighted, self._standardDeviationWeighted, self._totalObs
         
         return None
 

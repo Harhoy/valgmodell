@@ -69,9 +69,10 @@ function largest_remainder(seats, targetSum) {
 /*
 window.addEventListener('load', () => {
 
-    seats = [50.12, 40.56, 67, 19.23, 15.4, 10.4, 9.5];
+    seats = [54.2, 42.5, 27.4, 2, 0.8, 10.2, 10.3, 13.1, 8.4];
 
     console.log(largest_remainder(seats, 169));
 
 })
 */
+

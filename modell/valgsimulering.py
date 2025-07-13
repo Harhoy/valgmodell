@@ -11,6 +11,9 @@ import datetime
 from random import random
 from copy import deepcopy
 from utils import *
+from cholesky import Cholesky
+
+
 
 class Valgsimulering:
 
@@ -41,6 +44,10 @@ class Valgsimulering:
         self.setup()
 
         self._otherPartyIndex = -1
+
+        self._noEstimatedUncertainty = 1.2
+
+        self._bias_sensitivity = 0.85
 
 
 
@@ -79,6 +86,8 @@ class Valgsimulering:
             vm = VektingsmodellStandard(self._pollDatabase, self._dato, method = "Standard", omraade = self._counties[county]['Name'])
             self._counties[county]['Poll'] = vm.run()
             del vm
+
+        #print(self._pollData)
 
     # -----------------------
     # Running the simulation
@@ -152,12 +161,17 @@ class Valgsimulering:
             # Random draws
             for party in range(self._parties):
 
+                c = Cholesky(self._pollData)
+                p = c.generate()
+                
                 # Polling error
-                self._voteSharesNational[party] = norm.ppf(random(), self._pollData[0][party], self._pollData[1][0][party])
+                self._voteSharesNational[party] = p[party]#norm.ppf(random(), self._pollData[0][party], self._pollData[1][0][party] * self._noEstimatedUncertainty)
 
                 # General uncertainty
-                self._voteSharesNational[party] += self._uncertainty[party][1] + random() * (self._uncertainty[party][0] - self._uncertainty[party][1])
+                self._voteSharesNational[party] += (self._uncertainty[party][1] + random() * (self._uncertainty[party][0] - self._uncertainty[party][1])) * self._bias_sensitivity
 
+                del c
+                
             # Normalize
             for party in range(self._parties):
                 self._voteSharesNational[party] = self._voteSharesNational[party] / self._voteSharesNational.sum() * (1-self._pollData[0][self._otherPartyIndex])
@@ -280,7 +294,8 @@ class Valgsimulering:
                     
             self._sharePartyConstituency = self._sharePartyConstituency_total
 
-
+        #self._sharePartyConstituency *= 800000
+    
     def returnResults(self):
         return self._resultMatrix
 

@@ -3,13 +3,16 @@ from mandatfordeling import fordeling
 import numpy as np
 from copy import deepcopy
 
+
+VOTES_CONSTANT = 1
+
 class ValgSystemNorge:
 
     def __init__(self, stemmer, mandater, divisor = 1.4, sperregrense = 0.04):
 
         #Array sortert etter rekkefolgen i partier med antall stemmer per parti
         self._stemmer = deepcopy(stemmer)
-        self._stemmerCopy = deepcopy(stemmer)
+        self._stemmerCopy = deepcopy(stemmer) * VOTES_CONSTANT
 
         #Liste med fylker og navn
         self._fylker = len(self._stemmer)
@@ -46,7 +49,7 @@ class ValgSystemNorge:
         #Beregner antall distriktsmandater
     def calcDistriktsmandater(self):
         for i in range(self._fylker):
-            self._mandaterTildelt[i] = fordeling(self._mandater[i], self._stemmer[i], self._divisor)
+            self._mandaterTildelt[i] = fordeling(self._mandater[i], self._stemmer[i] * VOTES_CONSTANT, self._divisor)
 
         #Beregner antall utjevningsmandater
     def calcUtjevningsmandater(self):
@@ -65,6 +68,7 @@ class ValgSystemNorge:
 
                 # Havner under sperregrensen
                 self._overSperregrense[party] = 0
+
 
         #Redistribution of
         refordeling = True

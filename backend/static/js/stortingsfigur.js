@@ -54,7 +54,7 @@ async function drawGraph(id) {
   }
 
   // Apply correction
-  seats_correted = largest_remainder(seats_correted, Math.floor(totalSeats));
+  seats_correted = largest_remainder(seats_correted, 169);
 
   // Change data
   for (let i = 0; i < Object.keys(intialData[0]).length; i++) {
