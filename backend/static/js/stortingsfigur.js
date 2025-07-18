@@ -24,6 +24,8 @@ window.addEventListener('load', async () => {
     drawGraph(latest_sim_id);
   });
 
+  
+
 });
 
 async function drawGraph(id) {

@@ -50,7 +50,7 @@ class VektingsmodellStandard:
         #Extract raw data from database
     def getData(self):
 
-        query = "SELECT AP, Frp, H, Krf, MDG, R, Sp, SV, V, A, Utvalgsstorrelse, Dato, Aar FROM Malinger WHERE Omraade == " +  "'" + self._omraade +  "'"
+        query = "SELECT AP, Frp, H, Krf, MDG, R, Sp, SV, V, A, Utvalgsstorrelse, Dato, Aar, Institutt, ID_POP FROM Malinger WHERE Omraade == " +  "'" + self._omraade +  "'"
 
 
 
@@ -70,6 +70,10 @@ class VektingsmodellStandard:
             temp['N'] = row[10]
             temp['Dato'] = row[11]
             temp['Aar'] = row[12]
+            temp['vekt'] = 0
+            temp['vekt_total'] = 0
+            temp['Institutt'] = row[13]
+            temp['ID_POP'] = row[14]
             self._results.append(deepcopy(temp))
 
             #print(row[11])
@@ -101,6 +105,7 @@ class VektingsmodellStandard:
 
             #Date distance weight
             self._dates[i] = self.dateWeight(dato2)
+            self._results[i]['vekt'] = self._dates[i][0]
 
         #convert matrix to fractions
         self._shareMarix = self._shareMarix / 100.0
@@ -148,9 +153,11 @@ class VektingsmodellStandard:
                 self._standardDeviationWeighted[i] = (1.0 / columnSums[i]) ** .5
             else:
                 self._weigthMatrix[:, i] = 0
-                self._standardDeviationWeighted[i] = 10000        
+                self._standardDeviationWeighted[i] = 10000
 
-        #print(self._weigthMatrix)
+        w = np.mean(self._weigthMatrix, axis=1)
+        for i in range(len(self._results)):
+            self._results[i]['vekt_total'] = w[i]
 
         #Finally weighting the matrix shares
         self._shareMarixWeighted = np.multiply(self._shareMarix, self._weigthMatrix).sum(axis=0)
@@ -180,8 +187,11 @@ if __name__ == "__main__":
 
     date = datetime.datetime(2025, 5, 29, 18, 00)
 
-    vm = VektingsmodellStandard("../dataGet/db/Valg_db.db", date, 20,40, "Standard", "Hedmark" )
+    vm = VektingsmodellStandard("../dataGet/db/Valg_db.db", date, 20,40)
     #print(datetime.datetime.now())
     r = vm.run()
     print(r[0])
     print(r[1])
+    for i in range(len(vm._results)):
+        if vm._results[i]['vekt'] > 1e-10:
+            print(vm._results[i]['vekt'])

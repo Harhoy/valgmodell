@@ -62,6 +62,10 @@ def valgkart():
 def metode():
     return render_template("metode.html")
 
+@app.route("/datagrunnlag")
+def datagrunnlag():
+    return render_template("datagrunnlag.html")
+
 #----------------------------------------------
 #Getting district names and numbers
 #----------------------------------------------
@@ -435,6 +439,51 @@ def simInfo():
     QUERY = text("SELECT Date from Info")
     res = db.engine.execute(QUERY).fetchone()[0]
     return res
+
+@app.route("/maaalingerInfo")
+def maalingerInfo():
+
+    QUERY = text("SELECT max(id) from Simulering")
+    id = str(db.engine.execute(QUERY).fetchone()[0])
+     
+
+    QUERY = '''
+    SELECT ID, Institutt, Vekt_total, Utvalg, Dato from Maalinger 
+    WHERE SimID = ? AND Vekt_total > ?
+    ORDER BY Vekt_dato DESC, ID DESC;
+    '''
+
+    data = db.engine.execute(QUERY, (id,1e-10))#.fetchone()
+    returnVal = []
+    for d in data:
+        returnVal.append(list(d))
+    return json.dumps(returnVal)
+
+@app.route("/utjevningsmandater")
+def utjevningsmandater():
+
+    QUERY = text("SELECT max(id) from Simulering")
+    id = str(db.engine.execute(QUERY).fetchone()[0])
+
+    QUERY = '''
+    SELECT Resultater_kandidat.KandidatID, 
+    Resultater_kandidat.Parti, 
+    Resultater_kandidat.Fylke, 
+    Resultater_kandidat.Prob_utjevning,
+    Kandidater_25.navn
+    FROM Resultater_kandidat
+    WHERE Resultater_kandidat.SimuleringsID = ? ORDER BY Resultater_kandidat.Prob_utjevning DESC
+    LIMIT 100;
+    '''
+
+    data = db.engine.execute(QUERY, (id))
+    returnVal = []
+    for d in data:
+        print(d)
+        
+    return "hi"
+    
+
 
 
 if __name__ == "__main__":

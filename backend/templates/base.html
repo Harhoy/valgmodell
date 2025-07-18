@@ -34,6 +34,7 @@ body {font-size:16px;}
     <a href="/partier" onclick="w3_close()" class="w3-bar-item w3-button w3-hover-white">Nasjonale resultater</a> 
     <a href="/valgdistrikt" onclick="w3_close()" class="w3-bar-item w3-button w3-hover-white">Fylkesvise resultater</a> 
     <a href="/metode" onclick="w3_close()" class="w3-bar-item w3-button w3-hover-white">Metode</a> 
+    <a href="/datagrunnlag" onclick="w3_close()" class="w3-bar-item w3-button w3-hover-white">Datagrunnlag</a> 
   </div>
 </nav>
 
@@ -55,6 +56,10 @@ body {font-size:16px;}
     <hr style="width:50px;border:5px solid red" class="w3-round">
   </div>
   
+  <div class="w3-container" style="margin-top:10px" id="updatedDate">
+    <h5 ><b>Sist oppdatert: N/A</b></h1>
+  </div>
+
    {% block body %}{% endblock %}
 
 
@@ -83,6 +88,23 @@ function onClick(element) {
   var captionText = document.getElementById("caption");
   captionText.innerHTML = element.alt;
 }
+
+window.addEventListener('load', async () => {
+
+  const response = await fetch(`/simInfo`, {
+      method: 'GET',
+      headers: {
+      "Content-type": "application/json; charset=UTF-8"
+        }
+      });
+
+  const data = await response.text();
+
+  let updatedDisplay = document.getElementById("updatedDate");
+  updatedDisplay.innerHTML = "<h5 ><b>Sist oppdatert: " + data + "</b></h1>"
+
+});
+
 </script>
 
 <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>

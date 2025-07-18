@@ -50,13 +50,18 @@ cur.execute("DELETE FROM Resultater_koalisjon_nasjonal;")
 conn.commit()
 cur.execute("DELETE FROM Sperregrense;")
 conn.commit()
+cur.execute("DELETE FROM Info;")
+conn.commit()
+cur.execute("DELETE FROM Maalinger;")
+conn.commit()
 
 #Date to start time series generation
 start_date = date(2024, 10, 4)
 #Date to end time series generation
-end_date = date(2025, 7, 10)
+end_date = date(2025, 7, 20)
 #Adding info
-cur.execute("INSERT INTO Info (Date) VALUES (" + str(start_date) +  ")")
+current_date = datetime.today().strftime('%Y-%m-%d')
+cur.execute("INSERT INTO Info (Date) VALUES (" "'" + str(current_date) +  "'" ");")
 conn.commit()
 
 for dato in daterange(start_date, end_date):
@@ -75,6 +80,7 @@ for dato in daterange(start_date, end_date):
     resultshandler.run()
 
     print(np.mean(simuleringsmodell.returnPolls(), axis=0))
+
 
 # -------------------------------------------------
 # Kjorer modellen for ren polling uten simulering
@@ -104,5 +110,4 @@ resultshandler.addPolls(simuleringsmodell.returnPolls())
 # Kjorer ut resultater til DB
 resultshandler.run(-2)
 print(simuleringsmodell.returnPolls())
-print(dato)
 

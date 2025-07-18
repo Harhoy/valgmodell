@@ -3,6 +3,7 @@ import sqlite3
 from valgsimulering import Valgsimulering
 import datetime
 from math import log
+from datetime import date as dato_find
 
 
 '''
@@ -92,6 +93,9 @@ class ResultHandler:
 
         # Vector with sperregrense-data
         self._sperregrenseMatrix = results[1]
+
+        # Maalinger
+        self._maalinger = results[2]
 
         #Date of simulation
         self._date = date
@@ -343,6 +347,28 @@ class ResultHandler:
         self.commitDB()
         self.closeDB()
 
+    def maalingerInformation(self):
+        
+        #Opening database
+        self.openDB()
+
+        for m in self._maalinger:
+            
+            query = '''
+            insert into Maalinger
+            (SimID, ID, Institutt, Vekt_dato, Vekt_total, Utvalg, Dato)
+            values
+            (?, ?, ?, ?, ?, ?, ?)
+            '''
+            
+            data = (self._simuleringsID, m['ID_POP'], m['Institutt'], m['vekt'],  m['vekt_total'], int(m['N']) , m['Dato'] + " - " + str(m['Aar']))
+
+            self._cursor.execute(query, data)
+
+        self.commitDB()
+        self.closeDB()
+
+
 
     #-------------------------------
     #Analyses kits
@@ -354,6 +380,7 @@ class ResultHandler:
         self._analyses.append(self.resultater_kandidat)
         self._analyses.append(self.resultater_snitt_nasjonalt)
         self._analyses.append(self.resultater_sperregrense)
+        self._analyses.append(self.maalingerInformation)
 
     #-------------------------------
     #Run the program
@@ -373,12 +400,19 @@ class ResultHandler:
 
 if __name__ == "__main__":
 
-    geoShareFile = ["data/fylkesfordeling2013.csv"]
+    geoShareFile = [{'file': "data/fylkesfordeling2013.csv", 'prop': 0.05},
+                    {'file': "data/fylkesfordeling2017.csv", 'prop': 0.35},
+                    {'file': "data/fylkesfordeling2021.csv", 'prop': 0.60}]
+
     seatsFile = "data/mandater24.csv"
-    pollDatabase = "data/poll/db/Valg_db.db"
+    pollDatabase = "../dataGet/db/Valg_db.db"
     uncertaintyFile = "data/usikkerhet.csv"
     resultsDatabase = "data/databaser/mainDB_TEST-kopi.db"
+    constituency_file = "data/countylist.csv"
     dato = datetime.datetime.now()
+
+    dato = dato_find(2025, 7, 4)
+    dato = datetime.datetime.combine(dato, datetime.datetime.min.time())
 
     #delete data
     conn = sqlite3.connect(resultsDatabase)
@@ -395,8 +429,11 @@ if __name__ == "__main__":
     conn.commit()
     cur.execute("DELETE FROM Resultater_koalisjon_nasjonal;")
     conn.commit()
+    cur.execute("DELETE FROM Maalinger;")
+    conn.commit()
 
-    simuleringsmodell = Valgsimulering(geoShareFile, seatsFile, pollDatabase, uncertaintyFile, dato, 1000)
+    simuleringsmodell = Valgsimulering(geoShareFile, seatsFile, pollDatabase, uncertaintyFile, dato, constituency_file, 100)
+    simuleringsmodell._regional = False
     resultshandler = ResultHandler(resultsDatabase, simuleringsmodell.run(), dato)
     resultshandler.addPolls(simuleringsmodell.returnPolls())
     resultshandler.run()

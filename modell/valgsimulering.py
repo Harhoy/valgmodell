@@ -56,6 +56,7 @@ class Valgsimulering:
         #  --- Polling data --- # 
         self._vektingsmodell = VektingsmodellStandard(self._pollDatabase, self._dato)
         self._pollData = self._vektingsmodell.run()
+        self._pollInformation = self._vektingsmodell._results
 
         #  --- Seats data --- # 
         self._seats = pd.read_csv(self._seatsFile, sep=';', header=None).values
@@ -129,7 +130,7 @@ class Valgsimulering:
             else:
                 self._resultsVoteShareNational[iter] = deepcopy(self._voteSharesNational)
 
-        return self._resultMatrix, self._sperregrenseMatrix
+        return self._resultMatrix, self._sperregrenseMatrix, self._pollInformation
 
     def calcVotes(self, geoShare = 0):
 
@@ -153,6 +154,7 @@ class Valgsimulering:
         if self._iterations == 1:
             for party in range(self._parties):
                 self._voteSharesNational[party] = self._pollData[0][party]
+                #print(self._voteSharesNational)
 
                 
 
@@ -171,7 +173,7 @@ class Valgsimulering:
                 self._voteSharesNational[party] += (self._uncertainty[party][1] + random() * (self._uncertainty[party][0] - self._uncertainty[party][1])) * self._bias_sensitivity
 
                 del c
-                
+
             # Normalize
             for party in range(self._parties):
                 self._voteSharesNational[party] = self._voteSharesNational[party] / self._voteSharesNational.sum() * (1-self._pollData[0][self._otherPartyIndex])
@@ -304,13 +306,15 @@ class Valgsimulering:
 
 if __name__ == "__main__":
 
+    '''
+    geoShareFile = [{'file': "data/fylkesfordeling2013.csv", 'prop': 0.0},
+                {'file': "data/fylkesfordeling2017.csv", 'prop': 0.0},
+                {'file': "data/fylkesfordeling2021.csv", 'prop': 1.0}]
+    '''
 
-    geoShareFile = [{'file': "data/fylkesfordeling2013.csv", 'prop': 0.1},
-                {'file': "data/fylkesfordeling2017.csv", 'prop': 0.3},
-                {'file': "data/fylkesfordeling2021.csv", 'prop': 0.6}]
-
+    geoShareFile = [{'file': "data/fylkesfordeling2021.csv", 'prop': 1.0}]
     #geoShareFile = ["data/fylkesfordeling2013.csv","data/fylkesfordeling2017.csv","data/fylkesfordeling2021.csv"]
-    seatsFile = "data/mandater24.csv"
+    seatsFile = "data/mandater21.csv"
     pollDatabase = "../dataGet/db/Valg_db.db"
     uncertaintyFile = "data/usikkerhet.csv"
     constituency_file = "data/countylist.csv"
@@ -319,13 +323,14 @@ if __name__ == "__main__":
     
 
 
-    v = Valgsimulering(geoShareFile, seatsFile, pollDatabase, uncertaintyFile, dato, constituency_file, 10)
+    v = Valgsimulering(geoShareFile, seatsFile, pollDatabase, uncertaintyFile, dato, constituency_file, 1)
+    v._regional = False
     v.run()
 
 
-
-    # print(v.returnResults())
-    #print(v.returnResults())
+    print(v.returnResults())
+    print(np.sum(v.returnResults()[0][2], axis=0))
+    print(v.returnPolls())
     #print(np.mean(v._sperregrenseMatrix, axis=0))
     #print(v._sperregrenseMatrix.shape)
     #print(v._sperregrenseMatrix)

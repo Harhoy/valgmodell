@@ -101,12 +101,15 @@ if __name__ == "__main__":
     lastVal = maxVal + 1
     hentet = 0
 
+    
     '''
-    m = getMaaling(5421)
-    print(insertMaaling(m, conn))
-    print(m['status'])
-
+    for i in range(20):
+    
+        m = getMaaling(4398 + i)
+        print(insertMaaling(m, conn))
+        print(m['status'])
     '''
+    
     print("henter")
     while tries < maxTries and lastStatus != "fail":
         resp = getMaaling(lastVal)

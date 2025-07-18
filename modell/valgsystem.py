@@ -86,6 +86,7 @@ class ValgSystemNorge:
                     if self._stemmer[:, party].sum() >= self._sperregrense:
                         self._utjevningsmandater[party] = nasjonalMandat[party] - self._mandaterTildelt.sum(axis=0)[party]
 
+                    
                     #Need to redistribute votes from parties that have more seats in direct allocation (Ledd 5)
                     if self._utjevningsmandater[party] < 0:
 
