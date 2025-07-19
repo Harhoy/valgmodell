@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+<div class="card m-3">
+  <div class="card-body">
+    <!-- Designers -->
+    <div class="w3-container" id="designers" style="margin-top:10px">
+      <h1 class="w3-xlarge w3-text-red"><b>Utjevningsmandater</b></h1>
+      <hr style="width:50px;border:5px solid red" class="w3-round">
+      <p>Datagrunnlaget er for denne siden er hentet fra <a href="http://pollofpolls.no">Poll of polls</a>. 
+      Beregningene ville ikke vært mulige å gjennomføre uten deres innsats og tilgjengeliggjøring av data. </p>
+
+
+      <p>
+      Følg kildelenke til Poll of polls for å se detaljer.
+      </p>
+
+      
+    </div>
+
+      <table class="table table-hover table-striped-stiped thead-dark text-center" id="utjevningsmandaterTableProb">
+        <tr>
+          <th>Parti</th>
+          <th>Fylke</th>
+          <th>Sannsynlighet (%)</th>
+        </tr>
+      </table>
+    
+  </div>
+</div>
+
+
+  <script src="{{ url_for('static', filename='js/utjevningsmandater.js') }}"></script>
+
+
+{% endblock %}

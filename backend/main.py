@@ -66,6 +66,10 @@ def metode():
 def datagrunnlag():
     return render_template("datagrunnlag.html")
 
+@app.route("/utjevningsmandater")
+def utjevningsmandater():
+    return render_template("utjevningsmandater.html")
+
 #----------------------------------------------
 #Getting district names and numbers
 #----------------------------------------------
@@ -459,29 +463,44 @@ def maalingerInfo():
         returnVal.append(list(d))
     return json.dumps(returnVal)
 
-@app.route("/utjevningsmandater")
-def utjevningsmandater():
+@app.route("/getUtjevningsmandater")
+def getUtjevningsmandater():
 
     QUERY = text("SELECT max(id) from Simulering")
     id = str(db.engine.execute(QUERY).fetchone()[0])
 
     QUERY = '''
-    SELECT Resultater_kandidat.KandidatID, 
-    Resultater_kandidat.Parti, 
-    Resultater_kandidat.Fylke, 
-    Resultater_kandidat.Prob_utjevning,
-    Kandidater_25.navn
-    FROM Resultater_kandidat
-    WHERE Resultater_kandidat.SimuleringsID = ? ORDER BY Resultater_kandidat.Prob_utjevning DESC
-    LIMIT 100;
+    SELECT 
+        Resultater_kandidat.KandidatID, 
+        Resultater_kandidat.Parti, 
+        Resultater_kandidat.Fylke, 
+        Resultater_kandidat.Prob_utjevning,
+        Parties.Shortname,
+        Districts.Name
+    FROM 
+        Resultater_kandidat
+    JOIN 
+        Parties ON Resultater_kandidat.Parti = Parties.ID
+    JOIN 
+        Districts ON Resultater_kandidat.Fylke = Districts.ID
+    WHERE 
+        Resultater_kandidat.SimuleringsID = ? 
+    ORDER BY 
+        Resultater_kandidat.Prob_utjevning DESC
+    LIMIT 
+        100;
     '''
 
     data = db.engine.execute(QUERY, (id))
     returnVal = []
     for d in data:
-        print(d)
-        
-    return "hi"
+        temp = {}
+        temp['Fylke'] = d[5]
+        temp['Parti'] = d[4]
+        temp['Prob'] = d[3]
+        returnVal.append(temp)
+
+    return json.dumps(returnVal)
     
 
 
