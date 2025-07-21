@@ -170,7 +170,7 @@ class Valgsimulering:
                 self._voteSharesNational[party] = p[party]#norm.ppf(random(), self._pollData[0][party], self._pollData[1][0][party] * self._noEstimatedUncertainty)
 
                 # General uncertainty
-                self._voteSharesNational[party] += (self._uncertainty[party][1] + random() * (self._uncertainty[party][0] - self._uncertainty[party][1])) * self._bias_sensitivity
+                self._voteSharesNational[party] += self._uncertainty[party][geoShare] #(self._uncertainty[party][1] + random() * (self._uncertainty[party][0] - self._uncertainty[party][1])) * self._bias_sensitivity
 
                 del c
 
@@ -316,14 +316,14 @@ if __name__ == "__main__":
     #geoShareFile = ["data/fylkesfordeling2013.csv","data/fylkesfordeling2017.csv","data/fylkesfordeling2021.csv"]
     seatsFile = "data/mandater21.csv"
     pollDatabase = "../dataGet/db/Valg_db.db"
-    uncertaintyFile = "data/usikkerhet.csv"
+    uncertaintyFile = "data/usikkerhet_rev.csv"
     constituency_file = "data/countylist.csv"
     dato = datetime.datetime.now()
 
     
 
 
-    v = Valgsimulering(geoShareFile, seatsFile, pollDatabase, uncertaintyFile, dato, constituency_file, 1)
+    v = Valgsimulering(geoShareFile, seatsFile, pollDatabase, uncertaintyFile, dato, constituency_file, 1000)
     v._regional = False
     v.run()
 

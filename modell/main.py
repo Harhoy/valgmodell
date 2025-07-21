@@ -15,16 +15,16 @@ def daterange(start_date, end_date):
         yield start_date + timedelta(n)
 
 #List of matrices with distribution of votes per party over counties and proportions used
-geoShareFile = [{'file': "data/fylkesfordeling2013.csv", 'prop': 0.05},
-                {'file': "data/fylkesfordeling2017.csv", 'prop': 0.3},
-                {'file': "data/fylkesfordeling2021.csv", 'prop': 0.65}]
+geoShareFile = [{'file': "data/fylkesfordeling2013.csv", 'prop': 0.10},
+                {'file': "data/fylkesfordeling2017.csv", 'prop': 0.40},
+                {'file': "data/fylkesfordeling2021.csv", 'prop': 0.50}]
 
 #Seats per county
 seatsFile = "data/mandater21.csv"
 #Database with polls
 pollDatabase = "../dataGet/db/Valg_db.db"
 #Empty file, for now
-uncertaintyFile = "data/usikkerhet.csv"
+uncertaintyFile = "data/usikkerhet_rev.csv"
 #Database to store results
 mainBase = "data/databaser/mainDB.db"
 #File with data on each constituency to find data from survey database
