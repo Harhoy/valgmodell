@@ -16,11 +16,11 @@ def daterange(start_date, end_date):
 
 #List of matrices with distribution of votes per party over counties and proportions used
 geoShareFile = [{'file': "data/fylkesfordeling2013.csv", 'prop': 0.05},
-                {'file': "data/fylkesfordeling2017.csv", 'prop': 0.35},
-                {'file': "data/fylkesfordeling2021.csv", 'prop': 0.60}]
+                {'file': "data/fylkesfordeling2017.csv", 'prop': 0.3},
+                {'file': "data/fylkesfordeling2021.csv", 'prop': 0.65}]
 
 #Seats per county
-seatsFile = "data/mandater24.csv"
+seatsFile = "data/mandater21.csv"
 #Database with polls
 pollDatabase = "../dataGet/db/Valg_db.db"
 #Empty file, for now
@@ -56,13 +56,14 @@ cur.execute("DELETE FROM Maalinger;")
 conn.commit()
 
 #Date to start time series generation
-start_date = date(2024, 10, 4)
+start_date = date(2025, 7, 10)
 #Date to end time series generation
 end_date = date(2025, 7, 20)
 #Adding info
 current_date = datetime.today().strftime('%Y-%m-%d')
 cur.execute("INSERT INTO Info (Date) VALUES (" "'" + str(current_date) +  "'" ");")
 conn.commit()
+
 
 for dato in daterange(start_date, end_date):
 
@@ -110,4 +111,6 @@ resultshandler.addPolls(simuleringsmodell.returnPolls())
 # Kjorer ut resultater til DB
 resultshandler.run(-2)
 print(simuleringsmodell.returnPolls())
+
+print(np.sum(simuleringsmodell.returnResults()[0][2], axis=0))
 

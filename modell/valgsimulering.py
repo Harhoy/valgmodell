@@ -306,13 +306,13 @@ class Valgsimulering:
 
 if __name__ == "__main__":
 
-    '''
-    geoShareFile = [{'file': "data/fylkesfordeling2013.csv", 'prop': 0.0},
-                {'file': "data/fylkesfordeling2017.csv", 'prop': 0.0},
-                {'file': "data/fylkesfordeling2021.csv", 'prop': 1.0}]
-    '''
+    
+    geoShareFile = [{'file': "data/fylkesfordeling2013.csv", 'prop': 0.05},
+                {'file': "data/fylkesfordeling2017.csv", 'prop': 0.30},
+                {'file': "data/fylkesfordeling2021.csv", 'prop': 0.65}]
+    
 
-    geoShareFile = [{'file': "data/fylkesfordeling2021.csv", 'prop': 1.0}]
+    #geoShareFile = [{'file': "data/fylkesfordeling2024.csv", 'prop': 1.0}]
     #geoShareFile = ["data/fylkesfordeling2013.csv","data/fylkesfordeling2017.csv","data/fylkesfordeling2021.csv"]
     seatsFile = "data/mandater21.csv"
     pollDatabase = "../dataGet/db/Valg_db.db"
