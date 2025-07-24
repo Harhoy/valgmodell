@@ -35,7 +35,7 @@ class VektingsmodellStandard:
         #Cursor
         self._cursor = self._conn.cursor()
         #Connecting party name and number
-        self._partiNavnNummer =  {'AP':0, 'Frp':1, 'H':2, 'Krf':3, 'MDG':4, 'R':5, 'Sp':6, 'SV':7, 'V':8, 'A':9}
+        self._partiNavnNummer =  {'AP':0, 'Frp':1, 'H':2, 'Krf':3, 'MDG':4, 'R':5, 'Sp':6, 'SV':7, 'V':8, 'PF':9, 'A':10}
         #Date A in weighting model
         self._dateA = dateA
         #Date B in weighting model
@@ -76,6 +76,11 @@ class VektingsmodellStandard:
             temp['Institutt'] = row[13]
             temp['ID_POP'] = row[14]
             temp['Omraade'] = row[15]   
+
+            # Manuell haandtering av Pasientfokus. Hentet fra fylkesmaaling
+            temp['PF'] = 0.265
+            temp['A'] -= temp['PF']
+        
             self._results.append(deepcopy(temp))
 
         #Move data over to numpy arrays

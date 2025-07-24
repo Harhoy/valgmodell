@@ -72,7 +72,6 @@ class Valgsimulering:
             integers.append({'prop': f['prop'], 'val': len(self._geoShares) - 1})
         self._geoShareList = randomIntegerList(integers)
 
-
         #  --- #  of parties --- # 
         self._parties = len(self._geoShares[0][0]) - 1 # Minus sum
 
@@ -315,23 +314,23 @@ class Valgsimulering:
 if __name__ == "__main__":
 
     
-    geoShareFile = [{'file': "data/fylkesfordeling2013.csv", 'prop': 0.05},
-                {'file': "data/fylkesfordeling2017.csv", 'prop': 0.30},
-                {'file': "data/fylkesfordeling2021.csv", 'prop': 0.65}]
+    #geoShareFile = [{'file': "data/fylkesfordeling2013.csv", 'prop': 0.00},
+    #            {'file': "data/fylkesfordeling2017.csv", 'prop': 0.00},
+    #            {'file': "data/fylkesfordeling2021_PF.csv", 'prop': 1.00}]
     
 
-    #geoShareFile = [{'file': "data/fylkesfordeling2024.csv", 'prop': 1.0}]
+    geoShareFile = [{'file': "data/fylkesfordeling2021_PF.csv", 'prop': 1.0}]
     #geoShareFile = ["data/fylkesfordeling2013.csv","data/fylkesfordeling2017.csv","data/fylkesfordeling2021.csv"]
-    seatsFile = "data/mandater21.csv"
+    seatsFile = "data/mandater24.csv"
     pollDatabase = "../dataGet/db/Valg_db.db"
-    uncertaintyFile = "data/usikkerhet_rev.csv"
+    uncertaintyFile = "data/usikkerhet_rev_PF.csv"
     constituency_file = "data/countylist.csv"
     dato = datetime.datetime.now()
 
     
 
 
-    v = Valgsimulering(geoShareFile, seatsFile, pollDatabase, uncertaintyFile, dato, constituency_file, 1000)
+    v = Valgsimulering(geoShareFile, seatsFile, pollDatabase, uncertaintyFile, dato, constituency_file, 1)
     v._regional = False
     v.run()
 
