@@ -20,7 +20,7 @@ geoShareFile = [{'file': "data/fylkesfordeling2013.csv", 'prop': 0.10},
                 {'file': "data/fylkesfordeling2021.csv", 'prop': 0.50}]
 
 #Seats per county
-seatsFile = "data/mandater21.csv"
+seatsFile = "data/mandater24.csv"
 #Database with polls
 pollDatabase = "../dataGet/db/Valg_db.db"
 #Empty file, for now
@@ -56,7 +56,7 @@ cur.execute("DELETE FROM Maalinger;")
 conn.commit()
 
 #Date to start time series generation
-start_date = date(2025, 7, 10)
+start_date = date(2025, 7, 4)
 #Date to end time series generation
 end_date = date(2025, 7, 20)
 #Adding info
@@ -87,6 +87,12 @@ for dato in daterange(start_date, end_date):
 # Kjorer modellen for ren polling uten simulering
 # -------------------------------------------------
 
+
+geoShareFile = [{'file': "data/fylkesfordeling2013.csv", 'prop': 0.10},
+                {'file': "data/fylkesfordeling2017.csv", 'prop': 0.40},
+                {'file': "data/fylkesfordeling2021.csv", 'prop': 0.50}]
+
+
 # < ---- NASJONALE OG REGIONALE MAALINGER ---- > 
 
 # Setter opp simuleringsmodell for angitt dato
@@ -98,7 +104,7 @@ resultshandler.addPolls(simuleringsmodell.returnPolls())
 # Kjorer ut resultater til DB
 resultshandler.run(-1)
 
- 
+
 # < ---- NASJONALE  MAALINGER ---- >
 
 # Setter opp simuleringsmodell for angitt dato
@@ -113,4 +119,24 @@ resultshandler.run(-2)
 print(simuleringsmodell.returnPolls())
 
 print(np.sum(simuleringsmodell.returnResults()[0][2], axis=0))
+'''
 
+# < ---- NASJONALE  MAALINGER O-MATRISE ---- >
+
+# Setter opp simuleringsmodell for angitt dato
+simuleringsmodell = Valgsimulering(geoShareFile, seatsFile, pollDatabase, uncertaintyFile, dato, constituency_file, 1)
+simuleringsmodell._regional = False
+simuleringsmodell.redoVektingsmodell("Omatrise_juli_2025")
+# Setter opp resulthandler som tar imot data fra simuleringsmodellen
+resultshandler = ResultHandler(resultsDatabase, simuleringsmodell.run(), end_date)
+# Legger til data fra vektede polls
+resultshandler.addPolls(simuleringsmodell.returnPolls())
+# Kjorer ut resultater til DB
+resultshandler.run(-3)
+print(simuleringsmodell.returnPolls())
+
+print(np.sum(simuleringsmodell.returnResults()[0][2], axis=0))
+
+print("U",simuleringsmodell.returnResults()[0][1])
+print("D",simuleringsmodell.returnResults()[0][0])
+'''

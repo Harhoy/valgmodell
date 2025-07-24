@@ -50,7 +50,8 @@ class VektingsmodellStandard:
         #Extract raw data from database
     def getData(self):
 
-        query = "SELECT AP, Frp, H, Krf, MDG, R, Sp, SV, V, A, Utvalgsstorrelse, Dato, Aar, Institutt, ID_POP FROM Malinger WHERE Omraade == " +  "'" + self._omraade +  "'"
+        query = "SELECT AP, Frp, H, Krf, MDG, R, Sp, SV, V, A, Utvalgsstorrelse, Dato, Aar, Institutt, ID_POP, Omraade FROM Malinger WHERE Omraade == " +  "'" + self._omraade +  "'"
+
 
 
 
@@ -74,9 +75,8 @@ class VektingsmodellStandard:
             temp['vekt_total'] = 0
             temp['Institutt'] = row[13]
             temp['ID_POP'] = row[14]
+            temp['Omraade'] = row[15]   
             self._results.append(deepcopy(temp))
-
-            #print(row[11])
 
         #Move data over to numpy arrays
     def numpify(self):
@@ -96,16 +96,26 @@ class VektingsmodellStandard:
             #Number of observations
             self._observations[i] = self._results[i]['N']
 
-            dato = self._results[i]['Dato'].replace(" - ", "/").split("/")
-            aar = self._results[i]['Aar']
-            #Start of poll (Y M D)
-            dato1 = datetime.datetime(aar, int(dato[1]), int(dato[0]))
-            #End of poll
-            dato2 = datetime.datetime(aar, int(dato[3]), int(dato[2]))
+            # 'Special poll' that should have weight equal to 1 (typically external calculations) 
+            if self._results[i]['Dato'] == 'A':
+            
+                #Date distance weight
+                self._dates[i] = 1
+                self._results[i]['vekt'] = 1
 
-            #Date distance weight
-            self._dates[i] = self.dateWeight(dato2)
-            self._results[i]['vekt'] = self._dates[i][0]
+            # Regular poll
+            else:
+
+                dato = self._results[i]['Dato'].replace(" - ", "/").split("/")
+                aar = self._results[i]['Aar']
+                #Start of poll (Y M D)
+                dato1 = datetime.datetime(aar, int(dato[1]), int(dato[0]))
+                #End of poll
+                dato2 = datetime.datetime(aar, int(dato[3]), int(dato[2]))
+
+                #Date distance weight
+                self._dates[i] = self.dateWeight(dato2)
+                self._results[i]['vekt'] = self._dates[i][0]
 
         #convert matrix to fractions
         self._shareMarix = self._shareMarix / 100.0

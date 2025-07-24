@@ -83,12 +83,20 @@ class Valgsimulering:
         cf = pd.read_csv(self._constituency_file, sep =",")
         self._counties = cf.set_index('ID').T.to_dict()
         assert len(self._counties) == self._constituencies
+
         for county in self._counties:
             vm = VektingsmodellStandard(self._pollDatabase, self._dato, method = "Standard", omraade = self._counties[county]['Name'])
             self._counties[county]['Poll'] = vm.run()
             del vm
 
         #print(self._pollData)
+
+    def redoVektingsmodell(self, omr):
+
+        #  --- Polling data --- # 
+        self._vektingsmodell = VektingsmodellStandard(self._pollDatabase, self._dato, method = "Standard", omraade = omr)
+        self._pollData = self._vektingsmodell.run()
+        self._pollInformation = self._vektingsmodell._results
 
     # -----------------------
     # Running the simulation

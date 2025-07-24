@@ -119,8 +119,8 @@ class ValgSystemNorge:
 
             #finding the largest restkvotient
             minVal = -1
-            minParti = 0
-            minFylke = 0
+            minParti = -1
+            minFylke = -1
             for fylke in range(self._fylker):
                 for party in range(self._partier):
                     if self._restKvotientMatrise[fylke][party] > minVal and uMandater[fylke] > 0 and self._utjevningsmandater[party] > 0:
@@ -138,7 +138,6 @@ class ValgSystemNorge:
             self._restKvotientMatrise[fylke][party] = -1
             #One less seat on total to allocate
             tildelteUtjevningsmandater = tildelteUtjevningsmandater + 1
-
 
     def getDistriktsmandater(self):
         return self._mandaterTildelt
