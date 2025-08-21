@@ -94,7 +94,7 @@ if __name__ == "__main__":
     cursor = conn.cursor()
     findMax = "select max(ID_POP) from Malinger;"
     maxVal = cursor.execute(findMax).fetchone()[0]
-
+    
     tries = 0
     maxTries = 20
     lastStatus = "ok"
@@ -111,9 +111,12 @@ if __name__ == "__main__":
     '''
     
     print("henter")
+    print(lastVal)
     while tries < maxTries and lastStatus != "fail":
         resp = getMaaling(lastVal)
 
+
+        
         if resp['status'] == "ok":
             insertMaaling(resp, conn)
             tries += 1

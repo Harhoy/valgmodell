@@ -8,10 +8,11 @@ from valgsimulering import Valgsimulering
 from datetime import date, timedelta, datetime
 from resultHandler import ResultHandler
 
+
 #https://stackoverflow.com/questions/1060279/iterating-through-a-range-of-dates-in-python
 def daterange(start_date, end_date):
     days = int((end_date - start_date).days)
-    for n in range(1, days, 7):
+    for n in range(0, days, 7):
         yield start_date + timedelta(n)
 
 #List of matrices with distribution of votes per party over counties and proportions used
@@ -56,9 +57,9 @@ cur.execute("DELETE FROM Maalinger;")
 conn.commit()
 
 #Date to start time series generation
-start_date = date(2024, 10, 4)
+start_date = date(2025, 1, 5)
 #Date to end time series generation
-end_date = date(2025, 7, 20)
+end_date = date(2025, 8, 25)
 #Adding info
 current_date = datetime.today().strftime('%Y-%m-%d')
 cur.execute("INSERT INTO Info (Date) VALUES (" "'" + str(current_date) +  "'" ");")
