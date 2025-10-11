@@ -6,6 +6,7 @@ import json
 import sqlite3
 from copy import deepcopy
 import datetime
+import pandas as pd
 
 
 '''
@@ -502,8 +503,62 @@ def getUtjevningsmandater():
 
     return json.dumps(returnVal)
     
+@app.route('/getResultListCandidates')
+def getResultListCandidates():
+
+    QUERY = text("SELECT max(id) from Simulering")
+    id = str(db.engine.execute(QUERY).fetchone()[0])
 
 
+    QUERY = '''
+    SELECT 
+        Resultater_kandidat.KandidatID, 
+        Resultater_kandidat.Parti, 
+        Resultater_kandidat.Fylke, 
+        Resultater_kandidat.Prob_total,
+        Resultater_kandidat.Prob_direkte,
+        Resultater_kandidat.Prob_utjevning,
+        Parties.Shortname,
+        Parties.Name,
+        Districts.Name,
+        Kandidater_25.navn
+    FROM 
+        Resultater_kandidat
+    JOIN 
+        Parties ON Resultater_kandidat.Parti = Parties.ID
+    JOIN 
+        Districts ON Resultater_kandidat.Fylke = Districts.ID
+    JOIN
+        Kandidater_25
+        ON Resultater_kandidat.KandidatID = Kandidater_25.kandidatnr 
+        AND Resultater_kandidat.Fylke = Kandidater_25.valgdistriktID
+        AND Parties.Shortname = Kandidater_25.partikode
+    WHERE 
+        Resultater_kandidat.SimuleringsID = ? 
+        AND
+        Resultater_kandidat.Prob_total > 0
+    ORDER BY 
+        Resultater_kandidat.Prob_utjevning DESC
+    '''
+    
+
+    returnVal = []
+    data = db.engine.execute(QUERY, (id))
+    for d in data:
+        print(d)
+        temp = {}
+        temp['Fylke'] = d[8]
+        temp['Parti'] = d[6]
+        temp['Navn'] = d[9]
+        temp['Prob_dir'] = d[4]
+        temp['Prob_ut'] = d[5]
+        returnVal.append(temp)
+
+
+    df = pd.DataFrame(returnVal)
+    df.to_excel("candidates.xlsx", index=False, encoding='utf-8')
+        
+    return json.dumps(returnVal)
 
 if __name__ == "__main__":
     app.run(debug=True)

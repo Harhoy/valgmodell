@@ -59,7 +59,7 @@ conn.commit()
 #Date to start time series generation
 start_date = date(2025, 1, 5)
 #Date to end time series generation
-end_date = date(2025, 8, 25)
+end_date = date(2025, 11, 13)
 #Adding info
 current_date = datetime.today().strftime('%Y-%m-%d')
 cur.execute("INSERT INTO Info (Date) VALUES (" "'" + str(current_date) +  "'" ");")

@@ -78,7 +78,7 @@ class VektingsmodellStandard:
             temp['Omraade'] = row[15]   
 
             # Manuell haandtering av Pasientfokus. Hentet fra fylkesmaaling
-            temp['PF'] = 0.265
+            temp['PF'] = 0.14
             temp['A'] -= temp['PF']
         
             self._results.append(deepcopy(temp))
