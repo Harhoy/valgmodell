@@ -88,7 +88,7 @@ class Valgsimulering:
             self._counties[county]['Poll'] = vm.run()
             del vm
 
-        #print(self._pollData)
+        
 
     def redoVektingsmodell(self, omr):
 
@@ -168,10 +168,13 @@ class Valgsimulering:
         # Simulated values
         else:
             # Random draws
-            for party in range(self._parties):
-
-                c = Cholesky(self._pollData)
+            c = Cholesky(self._pollData)
+            try:
                 p = c.generate()
+            except:
+                pass
+            for party in range(self._parties):
+                
                 
                 # Polling error
                 self._voteSharesNational[party] = p[party]#norm.ppf(random(), self._pollData[0][party], self._pollData[1][0][party] * self._noEstimatedUncertainty)
@@ -179,7 +182,7 @@ class Valgsimulering:
                 # General uncertainty
                 self._voteSharesNational[party] += self._uncertainty[party][geoShare] #(self._uncertainty[party][1] + random() * (self._uncertainty[party][0] - self._uncertainty[party][1])) * self._bias_sensitivity
 
-                del c
+            del c
 
             # Normalize
             for party in range(self._parties):

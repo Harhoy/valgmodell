@@ -57,9 +57,9 @@ cur.execute("DELETE FROM Maalinger;")
 conn.commit()
 
 #Date to start time series generation
-start_date = date(2025, 1, 5)
+start_date = date(2025, 6, 2)
 #Date to end time series generation
-end_date = date(2025, 11, 13)
+end_date = date(2025, 11, 25)
 #Adding info
 current_date = datetime.today().strftime('%Y-%m-%d')
 cur.execute("INSERT INTO Info (Date) VALUES (" "'" + str(current_date) +  "'" ");")
